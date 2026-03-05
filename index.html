@@ -1,0 +1,2633 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#080A0E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Ramadan Mosque Journey</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+/* ===== CSS VARIABLES ===== */
+:root {
+  --gold:#D4A843; --gold2:#F0C96A; --gold-dim:#6B5120;
+  --bg:#080A0E; --bg2:#0E1118; --bg3:#161B26;
+  --border:#1E2535; --border2:#2A3345;
+  --text:#E8E0CC; --text-muted:#5A6070;
+  --metro:#3A9BCC; --green:#3DBA74; --red:#CC3333;
+  --hud-bg:rgba(8,10,14,0.92); --hud-border:rgba(212,168,67,0.35);
+  /* Theme env vars */
+  --th-sky1:#050710; --th-sky2:#0E1220; --th-sky3:#080C18;
+  --th-gnd1:#0D0F14; --th-gnd2:#080A0E;
+  --th-bld:#12151E; --th-bld2:#1A2030; --th-acc:#D4A843;
+  --th-fog:rgba(8,10,14,0.92); --th-road:#0D0F14;
+  --th-roadline:rgba(212,168,67,0.3); --th-horizon:rgba(212,168,67,0.15);
+  --th-particle:rgba(212,168,67,0.5);
+}
+[data-theme="egypt"]{
+  --th-sky1:#1A0800; --th-sky2:#7A2A00; --th-sky3:#C05020;
+  --th-gnd1:#8B6914; --th-gnd2:#5C440C;
+  --th-bld:#C4A35A; --th-bld2:#8B6914; --th-acc:#FFD700;
+  --th-fog:rgba(100,55,10,0.82); --th-road:#A07830;
+  --th-roadline:rgba(255,215,0,0.4); --th-horizon:rgba(255,140,40,0.35);
+  --th-particle:rgba(255,190,70,0.7);
+}
+[data-theme="palestine"]{
+  --th-sky1:#0A1840; --th-sky2:#1A4A8A; --th-sky3:#3A7AB0;
+  --th-gnd1:#7A6A50; --th-gnd2:#5A4E3A;
+  --th-bld:#D4C8B0; --th-bld2:#B8A888; --th-acc:#2A9040;
+  --th-fog:rgba(30,55,90,0.80); --th-road:#786855;
+  --th-roadline:rgba(200,200,200,0.4); --th-horizon:rgba(80,150,210,0.25);
+  --th-particle:rgba(180,210,255,0.5);
+}
+[data-theme="saudi"]{
+  --th-sky1:#0E0520; --th-sky2:#401880; --th-sky3:#A04020;
+  --th-gnd1:#C8A040; --th-gnd2:#886A1C;
+  --th-bld:#F0D880; --th-bld2:#D4B840; --th-acc:#40C080;
+  --th-fog:rgba(90,35,15,0.82); --th-road:#B89040;
+  --th-roadline:rgba(255,220,80,0.5); --th-horizon:rgba(190,90,30,0.32);
+  --th-particle:rgba(255,170,50,0.65);
+}
+[data-theme="malaysia"]{
+  --th-sky1:#001830; --th-sky2:#082A5C; --th-sky3:#0E5A9A;
+  --th-gnd1:#285A38; --th-gnd2:#1A3A24;
+  --th-bld:#C8D8E8; --th-bld2:#A0B8D0; --th-acc:#CC2020;
+  --th-fog:rgba(8,25,55,0.78); --th-road:#3A4438;
+  --th-roadline:rgba(210,210,210,0.5); --th-horizon:rgba(25,130,200,0.25);
+  --th-particle:rgba(90,190,255,0.55);
+}
+[data-theme="turkey"]{
+  --th-sky1:#001020; --th-sky2:#012840; --th-sky3:#0E5070;
+  --th-gnd1:#585F6C; --th-gnd2:#3A4050;
+  --th-bld:#E8DDD0; --th-bld2:#C8BDB0; --th-acc:#CC2820;
+  --th-fog:rgba(15,35,60,0.82); --th-road:#4A5060;
+  --th-roadline:rgba(200,195,210,0.4); --th-horizon:rgba(35,110,165,0.25);
+  --th-particle:rgba(130,175,220,0.5);
+}
+[data-theme="indonesia"]{
+  --th-sky1:#000E08; --th-sky2:#082016; --th-sky3:#145830;
+  --th-gnd1:#385A1A; --th-gnd2:#243A10;
+  --th-bld:#C8B460; --th-bld2:#A89040; --th-acc:#CC3020;
+  --th-fog:rgba(8,25,14,0.82); --th-road:#404830;
+  --th-roadline:rgba(210,195,90,0.4); --th-horizon:rgba(35,130,65,0.28);
+  --th-particle:rgba(90,200,115,0.5);
+}
+[data-theme="morocco"]{
+  --th-sky1:#140500; --th-sky2:#501508; --th-sky3:#B04028;
+  --th-gnd1:#B87040; --th-gnd2:#7A4A20;
+  --th-bld:#E8C080; --th-bld2:#D0A050; --th-acc:#2050C0;
+  --th-fog:rgba(110,38,10,0.82); --th-road:#9A6030;
+  --th-roadline:rgba(220,175,90,0.4); --th-horizon:rgba(195,75,28,0.32);
+  --th-particle:rgba(255,155,70,0.65);
+}
+/* === RESET & BASE === */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent}
+/* === HEADER === */
+.header{display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;z-index:500;position:relative}
+.header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),var(--gold),var(--gold-dim),transparent)}
+.logo{font-family:'Cinzel',serif;font-size:1.05rem;color:var(--gold);letter-spacing:0.06em;line-height:1}
+.logo span{font-size:0.55rem;display:block;color:var(--text-muted);letter-spacing:0.2em;text-transform:uppercase;font-family:'Rajdhani',sans-serif;margin-top:2px}
+.header-actions{display:flex;gap:5px;margin-left:auto;align-items:center;flex-wrap:wrap}
+.hbtn{display:flex;align-items:center;gap:4px;background:transparent;border:1px solid var(--border2);color:var(--text-muted);padding:5px 9px;font-family:'Rajdhani',sans-serif;font-size:0.65rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.hbtn:hover{border-color:var(--gold-dim);color:var(--gold)}
+.hbtn.active{border-color:var(--gold);color:var(--gold);background:rgba(212,168,67,0.1)}
+.hbtn.green-active{border-color:var(--green);color:var(--green);background:rgba(61,186,116,0.1)}
+.menu-btn{display:none;background:transparent;border:1px solid var(--border2);color:var(--text-muted);width:34px;height:34px;font-size:1rem;cursor:pointer;transition:all 0.2s;align-items:center;justify-content:center;flex-shrink:0}
+.menu-btn:hover{border-color:var(--gold-dim);color:var(--gold)}
+@media(max-width:640px){.menu-btn{display:flex}}
+/* === LAYOUT === */
+.main{display:flex;flex:1;overflow:hidden;position:relative}
+/* === SIDEBAR === */
+.sidebar{width:295px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;z-index:200;transition:transform 0.4s cubic-bezier(0.4,0,0.2,1)}
+@media(max-width:640px){
+  .sidebar{position:absolute;left:0;top:0;bottom:0;width:82%;max-width:310px;transform:translateX(-100%);z-index:900}
+  .sidebar.mob-open{transform:translateX(0)}
+}
+.sidebar-head{padding:10px 11px 8px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sidebar-head-row{display:flex;gap:6px;align-items:center;margin-bottom:7px}
+.sidebar-head-row label{font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-muted);flex:1}
+.add-btn{display:flex;align-items:center;gap:4px;background:rgba(61,186,116,0.08);border:1px solid rgba(61,186,116,0.35);color:var(--green);padding:4px 8px;font-family:'Rajdhani',sans-serif;font-size:0.65rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s}
+.add-btn:hover{background:rgba(61,186,116,0.18)}
+.add-btn.active{background:rgba(61,186,116,0.22);border-color:var(--green);animation:pulse-grn 1.5s infinite}
+@keyframes pulse-grn{0%,100%{box-shadow:0 0 0 0 rgba(61,186,116,0.4)}50%{box-shadow:0 0 0 6px rgba(61,186,116,0)}}
+.search-box{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px 10px;font-family:'Rajdhani',sans-serif;font-size:0.85rem;outline:none;transition:border-color 0.2s}
+.search-box:focus{border-color:var(--gold-dim)}
+.search-box::placeholder{color:var(--text-muted)}
+.mosque-list{flex:1;overflow-y:auto}
+.mosque-list::-webkit-scrollbar{width:2px}
+.mosque-list::-webkit-scrollbar-thumb{background:var(--border2)}
+.mosque-item{display:flex;align-items:center;padding:9px 11px;cursor:pointer;border-left:3px solid transparent;border-bottom:1px solid rgba(30,37,53,0.5);transition:all 0.15s;gap:7px}
+.mosque-item:hover{background:rgba(212,168,67,0.04);border-left-color:var(--gold-dim)}
+.mosque-item.selected{background:rgba(212,168,67,0.08);border-left-color:var(--gold)}
+.mosque-item.completed{border-left-color:var(--green)}
+.mosque-item-info{flex:1;min-width:0}
+.mosque-item-name{font-size:0.83rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mosque-item.selected .mosque-item-name{color:var(--gold2)}
+.mosque-item.completed .mosque-item-name{color:var(--green)}
+.mosque-item-sub{font-size:0.6rem;color:var(--text-muted);margin-top:1px}
+.mosque-badges{display:flex;gap:4px;margin-top:2px;flex-wrap:wrap}
+.badge{font-size:0.52rem;padding:1px 5px;letter-spacing:0.06em;white-space:nowrap}
+.badge-day{background:rgba(212,168,67,0.12);border:1px solid var(--gold-dim);color:var(--gold)}
+.badge-done{background:rgba(61,186,116,0.12);border:1px solid rgba(61,186,116,0.4);color:var(--green)}
+.del-btn{width:22px;height:22px;display:flex;align-items:center;justify-content:center;background:transparent;border:1px solid transparent;color:var(--text-muted);cursor:pointer;font-size:11px;flex-shrink:0;transition:all 0.2s;opacity:0}
+.mosque-item:hover .del-btn{opacity:1}
+.del-btn:hover{background:rgba(200,50,50,0.15);border-color:rgba(200,50,50,0.4);color:var(--red)}
+.empty-msg{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:var(--text-muted);font-size:0.78rem;padding:22px;text-align:center;line-height:1.6}
+.empty-icon{font-size:2rem;opacity:0.25}
+.stats-row{display:flex;border-top:1px solid var(--border);flex-shrink:0}
+.stat{flex:1;padding:6px 10px;border-right:1px solid var(--border)}
+.stat:last-child{border-right:none}
+.stat-v{font-family:'Cinzel',serif;font-size:1.05rem;color:var(--gold)}
+.stat-l{font-size:0.52rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);margin-top:1px}
+/* === MAP === */
+.map-wrap{flex:1;position:relative;overflow:hidden}
+#map{width:100%;height:100%}
+/* === SIDEBAR OVERLAY (mobile) === */
+.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:800;display:none}
+.sidebar-overlay.open{display:block}
+/* === TODAY PANEL === */
+.today-panel{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:700;background:var(--hud-bg);border:1px solid var(--hud-border);border-top:2px solid var(--gold);min-width:270px;max-width:370px;width:90%;backdrop-filter:blur(10px);display:none;flex-direction:column}
+.today-panel.visible{display:flex}
+.today-header{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--border)}
+.today-mosque-name{font-family:'Cinzel',serif;font-size:0.88rem;color:var(--gold);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.today-close{background:transparent;border:none;color:var(--text-muted);font-size:0.9rem;cursor:pointer;padding:0 4px;flex-shrink:0}
+.today-close:hover{color:var(--text)}
+.today-info{padding:7px 12px;font-size:0.68rem;color:var(--text-muted);line-height:1.6;border-bottom:1px solid var(--border)}
+.today-metro-name{color:var(--metro);font-weight:600}
+.mode-row{display:flex;gap:4px;padding:6px 8px;border-bottom:1px solid var(--border)}
+.mode-btn{flex:1;padding:5px;font-family:'Rajdhani',sans-serif;font-size:0.62rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;background:transparent;border:1px solid var(--border2);color:var(--text-muted);transition:all 0.2s}
+.mode-btn.active{background:rgba(212,168,67,0.12);border-color:var(--gold-dim);color:var(--gold)}
+.mode-btn.walk-active{background:rgba(80,160,220,0.12);border-color:rgba(80,160,220,0.5);color:rgba(100,200,255,0.9)}
+.mode-btn.drive-active{background:rgba(212,168,67,0.12);border-color:var(--gold-dim);color:var(--gold)}
+.today-actions{display:flex;gap:5px;padding:7px}
+.tact{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;background:transparent;border:1px solid var(--border2);color:var(--text-muted);font-family:'Rajdhani',sans-serif;font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:8px;cursor:pointer;transition:all 0.2s}
+.tact:hover:not(:disabled){border-color:var(--gold-dim);color:var(--gold)}
+.tact.nav-btn{background:rgba(212,168,67,0.08);border-color:var(--gold-dim);color:var(--gold)}
+.tact.nav-btn:hover{background:rgba(212,168,67,0.18);border-color:var(--gold)}
+.tact.complete-btn{background:rgba(61,186,116,0.08);border-color:rgba(61,186,116,0.35);color:var(--green)}
+.tact.complete-btn:hover:not(:disabled){background:rgba(61,186,116,0.2);border-color:var(--green)}
+.tact:disabled{opacity:0.35;cursor:not-allowed}
+/* === NAVIGATION HUD === */
+.nav-overlay{position:absolute;inset:0;z-index:800;pointer-events:none;display:none}
+.nav-overlay.visible{display:block}
+.nav-top{position:absolute;top:10px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none}
+.nav-hex{width:94px;height:94px;display:flex;align-items:center;justify-content:center;position:relative;background:var(--hud-bg);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)}
+.nav-hex::before{content:'';position:absolute;inset:-2px;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);background:linear-gradient(135deg,var(--gold),transparent,var(--gold-dim));z-index:-1}
+.nav-arrow{font-size:2.3rem;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);filter:drop-shadow(0 0 7px rgba(212,168,67,0.6));line-height:1}
+.nav-instr{background:var(--hud-bg);border:1px solid var(--hud-border);padding:4px 14px;font-size:0.75rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;backdrop-filter:blur(6px);text-align:center;max-width:230px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;clip-path:polygon(6px 0%,calc(100% - 6px) 0%,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0% calc(100% - 6px),0% 6px)}
+.nav-dist{font-size:0.65rem;color:var(--gold);letter-spacing:0.1em}
+.nav-dots{display:flex;gap:3px;align-items:center}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--border2);transition:all 0.3s}
+.nav-dot.done{background:var(--gold-dim)}
+.nav-dot.active{background:var(--gold);width:10px;border-radius:2px;box-shadow:0 0 6px rgba(212,168,67,0.6)}
+.nav-bottom{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,var(--hud-bg) 28%);padding:28px 10px 10px;pointer-events:auto}
+.nav-dest-bar{background:var(--hud-bg);border:1px solid var(--hud-border);border-top:2px solid var(--gold);padding:8px 11px;display:flex;align-items:center;gap:9px;margin-bottom:5px;backdrop-filter:blur(8px)}
+.nav-dest-name{font-family:'Cinzel',serif;font-size:0.9rem;color:var(--gold);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-dest-meta{font-size:0.62rem;color:var(--text-muted);text-align:right;flex-shrink:0}
+.nav-dest-close{background:transparent;border:none;color:var(--text-muted);font-size:0.9rem;cursor:pointer}
+.nav-steps-row{display:flex;gap:5px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none;margin-bottom:5px}
+.nav-steps-row::-webkit-scrollbar{display:none}
+.nav-step-card{flex-shrink:0;background:var(--hud-bg);border:1px solid var(--border2);padding:5px 8px;display:flex;align-items:center;gap:6px;cursor:pointer;transition:all 0.2s;min-width:130px;backdrop-filter:blur(6px);clip-path:polygon(4px 0%,calc(100% - 4px) 0%,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0% calc(100% - 4px),0% 4px)}
+.nav-step-card:hover{border-color:var(--gold-dim)}
+.nav-step-card.active{border-color:var(--gold);background:rgba(212,168,67,0.1)}
+.nav-step-card.sdone{border-color:var(--gold-dim);opacity:0.55}
+.nav-step-icon{font-size:1rem;flex-shrink:0}
+.nav-step-text{font-size:0.66rem;color:var(--text-muted);line-height:1.3}
+.nav-step-text strong{color:var(--text);display:block;font-size:0.72rem}
+.nav-step-card.active .nav-step-text strong{color:var(--gold2)}
+.nav-controls{display:flex;gap:5px}
+.ncbtn{flex:1;padding:8px 6px;background:var(--hud-bg);border:1px solid var(--border2);color:var(--text-muted);font-family:'Rajdhani',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;gap:4px}
+.ncbtn:hover:not(:disabled){border-color:var(--gold-dim);color:var(--gold)}
+.ncbtn:disabled{opacity:0.3;cursor:not-allowed}
+.ncbtn.imm-tog{background:rgba(212,168,67,0.07);border-color:var(--gold-dim);color:var(--gold)}
+.ncbtn.imm-tog:hover{background:rgba(212,168,67,0.16)}
+.ncbtn.ncomplete{background:rgba(61,186,116,0.07);border-color:rgba(61,186,116,0.35);color:var(--green)}
+.ncbtn.ncomplete:hover:not(:disabled){background:rgba(61,186,116,0.18);border-color:var(--green)}
+/* === IMMERSIVE ENVIRONMENT === */
+.imm-env{position:absolute;inset:0;z-index:900;display:none;overflow:hidden;background:#050710}
+.imm-env.visible{display:block}
+/* Full-screen canvas draws sky/road/buildings in perspective */
+.city-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;image-rendering:pixelated}
+/* Landmark centered at horizon */
+.imm-landmark{position:absolute;left:50%;top:47%;transform:translate(-50%,-100%);z-index:3;pointer-events:none;width:clamp(120px,22vw,280px);filter:drop-shadow(0 0 30px rgba(0,0,0,0.8))}
+.imm-landmark svg{width:100%;height:auto;display:block}
+/* Overlays */
+.imm-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,0.7) 100%);z-index:5;pointer-events:none}
+.imm-scanlines{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);z-index:5;pointer-events:none}
+/* Immersive HUD */
+.imm-topbar{position:absolute;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:flex-start;padding:9px 11px;pointer-events:none;gap:8px}
+.imm-exit{pointer-events:auto;display:flex;align-items:center;gap:5px;background:rgba(8,10,14,0.88);border:1px solid var(--border2);color:var(--text-muted);font-family:'Rajdhani',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:5px 10px;cursor:pointer;backdrop-filter:blur(6px);transition:all 0.2s;clip-path:polygon(5px 0%,100% 0%,100% calc(100% - 5px),calc(100% - 5px) 100%,0% 100%,0% 5px)}
+.imm-exit:hover{border-color:var(--gold-dim);color:var(--gold)}
+.imm-topright{display:flex;flex-direction:column;gap:5px;align-items:flex-end;pointer-events:none}
+/* Compass */
+.imm-compass{width:44px;height:44px;border-radius:50%;border:1px solid var(--border2);background:rgba(8,10,14,0.88);position:relative;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.imm-compass::before{content:'N';position:absolute;top:3px;font-size:0.45rem;color:var(--gold);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:0.1em}
+.imm-needle{width:24px;height:24px;transition:transform 0.3s cubic-bezier(0.4,0,0.2,1)}
+.imm-gps-pill{background:rgba(8,10,14,0.88);border:1px solid var(--border2);padding:2px 6px;font-size:0.56rem;letter-spacing:0.1em;color:var(--text-muted);display:flex;align-items:center;gap:3px;backdrop-filter:blur(6px)}
+.nav-gps-pill{background:rgba(8,10,14,0.88);border:1px solid var(--border2);border-radius:20px;padding:2px 8px;font-size:0.6rem;letter-spacing:0.08em;color:var(--text-muted);display:flex;align-items:center;gap:4px;margin:2px auto}
+.gps-pd{width:5px;height:5px;border-radius:50%;background:var(--text-muted)}
+.gps-pd.on{background:var(--green);box-shadow:0 0 4px var(--green);animation:gpsPulse 1.5s infinite}
+@keyframes gpsPulse{0%,100%{opacity:1}50%{opacity:0.4}}
+/* Mini-map */
+.imm-minimap{position:absolute;top:62px;right:11px;width:120px;height:120px;z-index:20;border:1px solid var(--border2);background:rgba(8,10,14,0.92);backdrop-filter:blur(8px);overflow:hidden}
+#minimapCanvas{display:block;width:120px;height:120px}
+.minimap-label{position:absolute;bottom:2px;left:0;right:0;text-align:center;font-size:0.47rem;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;pointer-events:none}
+/* Top HUD */
+.imm-top-hud{position:absolute;top:0;left:0;right:0;z-index:10;padding:55px 145px 0 62px;display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none}
+.imm-step-pill{background:rgba(8,10,14,0.88);border:1px solid var(--border2);padding:2px 11px;font-size:0.58rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-muted);clip-path:polygon(8px 0%,calc(100% - 8px) 0%,100% 50%,calc(100% - 8px) 100%,8px 100%,0% 50%)}
+.imm-step-pill .snum{color:var(--gold);font-weight:700}
+.imm-main-instr{font-family:'Cinzel',serif;font-size:1.05rem;color:var(--text);text-align:center;text-shadow:0 0 40px rgba(212,168,67,0.7),0 2px 12px rgba(0,0,0,0.95);letter-spacing:0.03em;max-width:310px;line-height:1.3}
+.imm-dist-lbl{font-size:0.66rem;color:var(--gold);letter-spacing:0.14em;text-shadow:0 0 12px rgba(212,168,67,0.7)}
+.imm-pbar{width:190px;height:2px;background:rgba(255,255,255,0.07);overflow:hidden}
+.imm-pfill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold),var(--gold2));transition:width 0.5s;box-shadow:0 0 8px var(--gold)}
+/* === RACING GAME ARROW (Midnight Club style) === */
+.race-arrow-stage{position:absolute;bottom:28%;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:6px;z-index:8;pointer-events:none}
+.race-arrow-3d{perspective:380px;perspective-origin:50% 100%}
+.race-arrow-plate{width:140px;height:160px;transform:rotateX(52deg);transform-origin:center bottom;display:flex;align-items:center;justify-content:center}
+.race-arrow-svg{transition:transform 0.42s cubic-bezier(0.34,1.56,0.64,1);display:block}
+.race-dir-label{font-family:'Rajdhani',sans-serif;font-size:0.82rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:#fff;text-shadow:0 0 12px var(--gold),0 0 25px var(--gold),0 2px 8px rgba(0,0,0,0.9);margin-top:-4px}
+.race-dist-label{font-family:'Cinzel',serif;font-size:1.15rem;color:var(--gold);text-shadow:0 0 18px var(--gold),0 0 40px rgba(212,168,67,0.5),0 2px 8px rgba(0,0,0,0.9);letter-spacing:0.06em}
+.imm-arrive-icon{display:none;position:absolute;font-size:2.8rem;animation:abounce 1s ease-in-out infinite;filter:drop-shadow(0 0 18px gold)}
+@keyframes abounce{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-9px) scale(1.1)}}
+/* Flash on step */
+.imm-flash{position:absolute;inset:0;z-index:30;background:rgba(212,168,67,0.12);pointer-events:none;opacity:0;transition:opacity 0.12s;z-index:30}
+.imm-flash.on{opacity:1}
+/* Bottom HUD */
+.imm-bottom{position:absolute;bottom:0;left:0;right:0;z-index:20;padding:0 10px 10px;background:linear-gradient(transparent,rgba(8,10,14,0.96) 38%)}
+.imm-dest-bar{display:flex;align-items:center;background:rgba(8,10,14,0.88);border:1px solid var(--border2);border-top:2px solid var(--gold);padding:7px 11px;gap:9px;margin-bottom:5px;backdrop-filter:blur(8px)}
+.imm-dest-name{font-family:'Cinzel',serif;font-size:0.86rem;color:var(--gold);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.imm-dest-meta{font-size:0.6rem;color:var(--text-muted);text-align:right;flex-shrink:0}
+.imm-nav-row{display:flex;gap:4px}
+.inbtn{padding:8px 13px;background:var(--hud-bg);border:1px solid var(--border2);color:var(--text-muted);font-size:0.95rem;cursor:pointer;transition:all 0.2s;flex-shrink:0}
+.inbtn:hover:not(:disabled){border-color:var(--gold-dim);color:var(--gold)}
+.inbtn:disabled{opacity:0.3;cursor:not-allowed}
+.imm-next-preview{flex:1;background:var(--hud-bg);border:1px solid var(--border2);padding:6px 9px;display:flex;align-items:center;gap:7px;clip-path:polygon(4px 0%,calc(100% - 4px) 0%,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0% calc(100% - 4px),0% 4px)}
+.imm-next-icon{font-size:1.2rem;flex-shrink:0}
+.imm-next-text{font-size:0.66rem;color:var(--text-muted);line-height:1.3}
+.imm-next-text strong{color:var(--text);display:block;font-size:0.72rem}
+.imm-cmpbtn{padding:8px 12px;background:rgba(61,186,116,0.08);border:1px solid rgba(61,186,116,0.35);color:var(--green);font-family:'Rajdhani',sans-serif;font-size:0.62rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;flex-shrink:0;white-space:nowrap}
+.imm-cmpbtn:hover:not(:disabled){background:rgba(61,186,116,0.2);border-color:var(--green)}
+.imm-cmpbtn:disabled{opacity:0.3;cursor:not-allowed}
+/* === PROGRESS MODAL === */
+.prog-modal{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.88);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;overflow-y:auto;overflow-x:hidden;padding:12px 8px;box-sizing:border-box}
+.prog-modal.open{display:flex}
+.prog-panel{background:var(--bg2);border:1px solid var(--border2);border-top:2px solid var(--gold);width:100%;max-width:min(520px,calc(100vw - 16px));box-sizing:border-box;overflow:hidden}
+.prog-header{display:flex;align-items:center;padding:11px 13px;border-bottom:1px solid var(--border);gap:8px}
+.prog-title{font-family:'Cinzel',serif;font-size:0.9rem;color:var(--gold);flex:1;min-width:0}
+.prog-close{background:transparent;border:none;color:var(--text-muted);font-size:1.1rem;cursor:pointer;flex-shrink:0}
+.prog-stats{display:flex;border-bottom:1px solid var(--border)}
+.prog-stat{flex:1;padding:7px 8px;border-right:1px solid var(--border);text-align:center;min-width:0}
+.prog-stat:last-child{border-right:none}
+.prog-stat-v{font-family:'Cinzel',serif;font-size:1.1rem;color:var(--gold)}
+.prog-stat-l{font-size:0.5rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted)}
+.prog-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:8px;box-sizing:border-box;width:100%}
+@media(max-width:400px){.prog-grid{grid-template-columns:repeat(4,1fr);gap:3px;padding:6px}}
+@media(max-width:300px){.prog-grid{grid-template-columns:repeat(3,1fr)}}
+.day-card{background:var(--bg3);border:1px solid var(--border);padding:5px 3px;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;min-height:68px;max-height:90px;transition:all 0.3s;cursor:default;overflow:hidden;box-sizing:border-box;width:100%}
+.day-card.dc-done{border-color:var(--gold-dim);background:rgba(212,168,67,0.04);animation:cglow 3s ease-in-out infinite}
+@keyframes cglow{0%,100%{box-shadow:0 0 10px rgba(212,168,67,0.1)}50%{box-shadow:0 0 20px rgba(212,168,67,0.22)}}
+.day-card.dc-today{border-color:var(--gold);border-width:2px}
+.day-num-lbl{font-size:0.44rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted)}
+.dc-done .day-num-lbl{color:var(--gold-dim)}
+.day-emoji{font-size:1.2rem;line-height:1}
+.dc-done .day-emoji{filter:drop-shadow(0 0 7px gold);animation:iconglow 2s ease-in-out infinite}
+@keyframes iconglow{0%,100%{filter:drop-shadow(0 0 5px gold)}50%{filter:drop-shadow(0 0 13px gold) drop-shadow(0 0 4px rgba(255,220,100,0.8))}}
+.day-card:not(.dc-done) .day-emoji{opacity:0.12;filter:grayscale(1)}
+.day-mosque-nm{font-size:0.44rem;color:var(--text-muted);text-align:center;line-height:1.2;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;padding:0 2px}
+.dc-done .day-mosque-nm{color:var(--gold)}
+.day-date-lbl{font-size:0.42rem;color:var(--text-muted);opacity:0.55}
+.dc-done .day-date-lbl{color:var(--gold-dim);opacity:0.9}
+.day-star-ico{position:absolute;top:2px;right:2px;font-size:0.55rem;color:var(--gold);display:none;animation:starrot 4s linear infinite}
+.dc-done .day-star-ico{display:block}
+@keyframes starrot{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.day-q{font-size:1.1rem;color:var(--text-muted);opacity:0.18}
+/* === SETTINGS === */
+.set-modal{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.82);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:18px}
+.set-modal.open{display:flex}
+.set-panel{background:var(--bg2);border:1px solid var(--border2);border-top:2px solid var(--gold);width:100%;max-width:340px;padding:18px}
+.set-title{font-family:'Cinzel',serif;font-size:0.95rem;color:var(--gold);margin-bottom:15px}
+.set-sec{margin-bottom:13px}
+.set-lbl{font-size:0.57rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--text-muted);margin-bottom:6px;display:block}
+.theme-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
+.theme-btn{padding:6px 8px;background:var(--bg3);border:1px solid var(--border);color:var(--text-muted);font-family:'Rajdhani',sans-serif;font-size:0.68rem;font-weight:600;letter-spacing:0.05em;cursor:pointer;transition:all 0.2s;text-align:left}
+.theme-btn:hover{border-color:var(--gold-dim);color:var(--gold)}
+.theme-btn.active{border-color:var(--gold);background:rgba(212,168,67,0.1);color:var(--gold)}
+.tog-row{display:flex;align-items:center;gap:9px}
+.tog-sw{width:38px;height:20px;background:var(--border2);border-radius:10px;position:relative;cursor:pointer;transition:background 0.3s;flex-shrink:0;border:none}
+.tog-sw.on{background:var(--green)}
+.tog-sw::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--text);transition:transform 0.3s}
+.tog-sw.on::after{transform:translateX(18px)}
+.tog-lbl{font-size:0.75rem;color:var(--text-muted)}
+.set-btns{display:flex;gap:7px;margin-top:15px}
+.sbtn{flex:1;padding:8px;font-family:'Rajdhani',sans-serif;font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;border:1px solid var(--border2)}
+.sbtn-save{background:rgba(212,168,67,0.14);border-color:var(--gold-dim);color:var(--gold)}
+.sbtn-save:hover{background:rgba(212,168,67,0.24)}
+.sbtn-cancel{background:transparent;color:var(--text-muted)}
+.reset-link{color:var(--red);font-size:0.62rem;cursor:pointer;text-decoration:underline;text-align:center;display:block;margin-top:7px;background:none;border:none;font-family:'Rajdhani',sans-serif;width:100%}
+/* === ADD MODAL === */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:3000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px);padding:18px}
+.modal-ov.open{display:flex}
+.modal-box{background:var(--bg2);border:1px solid var(--border2);border-top:2px solid var(--gold);padding:18px;width:100%;max-width:305px}
+.modal-title{font-family:'Cinzel',serif;font-size:0.9rem;color:var(--gold);margin-bottom:13px}
+.mlbl{font-size:0.57rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);display:block;margin-bottom:4px}
+.minput{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:7px 10px;font-family:'Rajdhani',sans-serif;font-size:0.86rem;outline:none;margin-bottom:11px}
+.minput:focus{border-color:var(--gold-dim)}
+.mbtns{display:flex;gap:6px}
+.mbtn{flex:1;padding:7px;font-family:'Rajdhani',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;border:1px solid var(--border2)}
+.mbtn-ok{background:rgba(212,168,67,0.14);border-color:var(--gold-dim);color:var(--gold)}
+.mbtn-ok:hover{background:rgba(212,168,67,0.24)}
+.mbtn-cancel{background:transparent;color:var(--text-muted)}
+/* Delete bar */
+.del-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(100,15,15,0.97);border-top:1px solid #8B2020;padding:9px 14px;display:none;align-items:center;gap:10px;z-index:1500;backdrop-filter:blur(6px)}
+.del-bar.open{display:flex}
+.del-msg{flex:1;font-size:0.8rem;color:#FFB0B0}
+.del-name{color:#FF7070;font-weight:600}
+.dbtn{padding:5px 12px;font-family:'Rajdhani',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;transition:all 0.2s}
+.dbtn-yes{background:#8B2020;border:1px solid #CC3333;color:#FFB0B0}
+.dbtn-yes:hover{background:#CC3333}
+.dbtn-no{background:transparent;border:1px solid rgba(255,176,176,0.3);color:#FFB0B0}
+/* Add hint */
+.add-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:700;display:none;text-align:center}
+.add-hint.visible{display:block}
+.add-hint-ring{width:54px;height:54px;border:2px solid var(--green);border-radius:50%;margin:0 auto 6px;animation:rp 1.5s infinite;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+@keyframes rp{0%,100%{box-shadow:0 0 0 0 rgba(61,186,116,0.4)}50%{box-shadow:0 0 0 13px rgba(61,186,116,0)}}
+.add-hint-lbl{font-size:0.7rem;color:var(--green);letter-spacing:0.1em;text-transform:uppercase;text-shadow:0 2px 8px rgba(0,0,0,0.9)}
+/* Legend */
+.map-legend{position:absolute;top:11px;right:11px;z-index:600;background:var(--hud-bg);border:1px solid var(--border2);padding:6px 9px;backdrop-filter:blur(6px);font-size:0.62rem}
+.legend-row{display:flex;align-items:center;gap:6px;color:var(--text-muted);margin-bottom:3px}
+.legend-row:last-child{margin-bottom:0}
+.ldot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+/* GPS dot */
+.user-dot{width:13px;height:13px;border-radius:50%;background:#4A9ECC;border:2px solid #fff;box-shadow:0 0 0 0 rgba(74,158,204,0.6);animation:gpsp 2s infinite}
+@keyframes gpsp{0%{box-shadow:0 0 0 0 rgba(74,158,204,0.6)}70%{box-shadow:0 0 0 8px rgba(74,158,204,0)}100%{box-shadow:0 0 0 0 rgba(74,158,204,0)}}
+/* Complete flash */
+.complete-flash{position:fixed;inset:0;z-index:5000;display:none;align-items:center;justify-content:center;pointer-events:none}
+.complete-flash.show{display:flex;animation:cfa 1.8s forwards}
+@keyframes cfa{0%{background:rgba(61,186,116,0)}10%{background:rgba(61,186,116,0.25)}75%{background:rgba(61,186,116,0.2)}100%{background:rgba(61,186,116,0)}}
+.cf-inner{text-align:center;animation:cfscale 0.5s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes cfscale{0%{transform:scale(0)}100%{transform:scale(1)}}
+.cf-star{font-size:3.5rem}
+.cf-text{font-family:'Cinzel',serif;font-size:1.3rem;color:var(--green);text-shadow:0 0 30px var(--green);margin-top:7px}
+.cf-sub{font-size:0.78rem;color:rgba(61,186,116,0.8);margin-top:4px}
+/* Toast */
+.toast{position:fixed;bottom:65px;left:50%;transform:translateX(-50%) translateY(9px);background:var(--bg3);border:1px solid var(--gold-dim);color:var(--gold);padding:5px 15px;font-size:0.72rem;letter-spacing:0.07em;opacity:0;transition:all 0.3s;z-index:9999;pointer-events:none;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* Leaflet overrides */
+.leaflet-control-zoom{border:1px solid var(--border2)!important;background:var(--bg2)!important}
+.leaflet-control-zoom a{background:var(--bg2)!important;color:var(--text-muted)!important;border-bottom:1px solid var(--border)!important}
+.leaflet-control-zoom a:hover{color:var(--gold)!important}
+.leaflet-tooltip{background:var(--bg2)!important;border:1px solid var(--border2)!important;color:var(--gold2)!important;font-family:'Rajdhani',sans-serif!important;font-size:11px!important;border-radius:0!important;box-shadow:0 2px 6px rgba(0,0,0,0.5)!important;padding:3px 7px!important}
+.leaflet-tooltip::before{display:none!important}
+</style>
+</head>
+<body data-theme="default">
+
+<!-- HEADER -->
+<div class="header">
+  <button class="menu-btn" id="menuBtn" onclick="toggleMobSidebar()">☰</button>
+  <div><div class="logo">Ramadan Journey<span>30 Nights · 30 Mosques</span></div></div>
+  <div class="header-actions">
+    <button class="hbtn" id="gpsBtn" onclick="toggleGPS()" title="Toggle GPS">📍 GPS</button>
+    <button class="hbtn" onclick="openProgress()">🗺 Progress</button>
+    <button class="hbtn" onclick="openSettings()">⚙ Settings</button>
+    <label class="hbtn" for="kmlInput" style="cursor:pointer">↑ KML</label>
+    <input type="file" id="kmlInput" accept=".kml" style="display:none">
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-head-row">
+        <label>Mosques</label>
+        <button class="add-btn" id="addBtn" onclick="toggleAddMode()">＋ Add</button>
+      </div>
+      <input class="search-box" id="searchBox" placeholder="Search mosques…" oninput="renderList()">
+    </div>
+    <div class="mosque-list" id="mosqueList">
+      <div class="empty-msg"><div class="empty-icon">🕌</div>Load your KML file to begin your Ramadan journey.</div>
+    </div>
+    <div class="stats-row" id="statsRow" style="display:none">
+      <div class="stat"><div class="stat-v" id="sTot">0</div><div class="stat-l">Mosques</div></div>
+      <div class="stat"><div class="stat-v" id="sVis">0</div><div class="stat-l">Visited</div></div>
+      <div class="stat"><div class="stat-v" id="sMet">0</div><div class="stat-l">Stations</div></div>
+    </div>
+  </div>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobSidebar()"></div>
+
+  <!-- MAP AREA -->
+  <div class="map-wrap">
+    <div id="map"></div>
+
+    <!-- Today panel -->
+    <div class="today-panel" id="todayPanel">
+      <div class="today-header">
+        <div class="today-mosque-name" id="tpName">—</div>
+        <button class="today-close" onclick="closePanel()">✕</button>
+      </div>
+      <div class="today-info" id="tpInfo">Select a mosque to begin.</div>
+      <div class="mode-row">
+        <button class="mode-btn active" id="modeWalk" onclick="setMode('walking')">🚶 Walking</button>
+        <button class="mode-btn" id="modeDrive" onclick="setMode('driving')">🚗 Driving</button>
+      </div>
+      <div class="today-actions">
+        <button class="tact nav-btn" id="tpNavBtn" onclick="startNavigation()">▶ Navigate</button>
+        <button class="tact complete-btn" id="tpCompleteBtn" onclick="completeNight()">✓ Complete Night</button>
+      </div>
+    </div>
+
+    <!-- Standard Nav HUD -->
+    <div class="nav-overlay" id="navOverlay">
+      <div class="nav-top" id="navTop">
+        <div class="nav-hex"><div class="nav-arrow" id="navArrow">↑</div></div>
+        <div class="nav-instr" id="navInstr">—</div>
+        <div class="nav-dist" id="navDist"></div>
+        <div class="nav-gps-pill" id="navGpsPill" style="display:none">
+          <div class="gps-pd" id="navGpsDot"></div><span id="navGpsLbl">GPS</span>
+        </div>
+        <div class="nav-dots" id="navDots"></div>
+      </div>
+      <div class="nav-bottom">
+        <div class="nav-dest-bar">
+          <div class="nav-dest-name" id="navDestName">—</div>
+          <div class="nav-dest-meta" id="navDestMeta"></div>
+          <button class="nav-dest-close" onclick="closeNavigation()">✕</button>
+        </div>
+        <div class="nav-steps-row" id="navStepsRow"></div>
+        <div class="nav-controls">
+          <button class="ncbtn" id="navPrev" onclick="navStep(-1)" disabled>◀ Prev</button>
+          <button class="ncbtn" id="navNext" onclick="navStep(1)">Next ▶</button>
+          <button class="ncbtn imm-tog" onclick="enterImmersive()">◈ Immersive</button>
+          <button class="ncbtn ncomplete" id="navComplete" onclick="completeNight()">✓ Done</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMMERSIVE ENVIRONMENT -->
+    <div class="imm-env" id="immEnv">
+      <!-- Full-screen canvas: sky, road, perspective buildings -->
+      <canvas class="city-canvas" id="cityCanvas"></canvas>
+      <!-- Landmark at horizon center -->
+      <div class="imm-landmark" id="immLandmark"></div>
+      <!-- Overlays -->
+      <div class="imm-vignette"></div>
+      <div class="imm-scanlines"></div>
+      <!-- Flash -->
+      <div class="imm-flash" id="immFlash"></div>
+      <!-- Topbar -->
+      <div class="imm-topbar">
+        <button class="imm-exit" onclick="exitImmersive()">✕ Exit</button>
+        <div class="imm-topright">
+          <div class="imm-compass">
+            <svg class="imm-needle" id="immNeedle" viewBox="0 0 24 24">
+              <polygon points="12,2 15,12 12,10 9,12" fill="#D4A843"/>
+              <polygon points="12,22 15,12 12,14 9,12" fill="#4A6080"/>
+            </svg>
+          </div>
+          <div class="imm-gps-pill"><div class="gps-pd" id="immGpsDot"></div><span id="immGpsLbl">GPS off</span></div>
+        </div>
+      </div>
+      <!-- Mini-map -->
+      <div class="imm-minimap">
+        <canvas id="minimapCanvas" width="120" height="120"></canvas>
+        <div class="minimap-label">Route Map</div>
+      </div>
+      <!-- Top HUD -->
+      <div class="imm-top-hud">
+        <div class="imm-step-pill">Step <span class="snum" id="immSN">1</span>&nbsp;/&nbsp;<span id="immST">?</span>&nbsp;·&nbsp;<span id="immSD">—</span></div>
+        <div class="imm-main-instr" id="immInst">—</div>
+        <div class="imm-dist-lbl" id="immDL"></div>
+        <div class="imm-pbar"><div class="imm-pfill" id="immPF" style="width:0%"></div></div>
+      </div>
+      <!-- Racing game 3D road arrow (Midnight Club style) -->
+      <div class="race-arrow-stage" id="raceArrowStage">
+        <div class="race-arrow-3d">
+          <div class="race-arrow-plate" id="immArrow">
+            <!-- Arrow SVG – rotated via JS for direction -->
+            <svg class="race-arrow-svg" id="raceArrowSvg" width="130" height="150" viewBox="0 0 130 150" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <filter id="raceGlow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="6" result="b"/>
+                  <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+                <linearGradient id="raceGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#FFFFFF"/>
+                  <stop offset="40%" stop-color="#FFE090"/>
+                  <stop offset="100%" stop-color="#D4A843"/>
+                </linearGradient>
+              </defs>
+              <!-- Shadow -->
+              <path d="M65 22 L106 62 L88 62 L88 128 L42 128 L42 62 L24 62 Z" fill="rgba(0,0,0,0.45)" transform="translate(3,6)"/>
+              <!-- Main arrow body -->
+              <path d="M65 18 L108 62 L88 62 L88 130 L42 130 L42 62 L22 62 Z" fill="url(#raceGrad)" filter="url(#raceGlow)"/>
+              <!-- Inner highlight -->
+              <path d="M65 28 L98 62 L82 62 L82 120 L48 120 L48 62 L32 62 Z" fill="rgba(255,255,255,0.18)"/>
+              <!-- Center line -->
+              <line x1="65" y1="35" x2="65" y2="120" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-dasharray="8,5"/>
+            </svg>
+          </div>
+        </div>
+        <div class="race-dir-label" id="raceDirLabel">STRAIGHT</div>
+        <div class="race-dist-label" id="raceDist">—</div>
+        <div class="imm-arrive-icon" id="immArrive">🕌</div>
+      </div>
+      <!-- Bottom HUD -->
+      <div class="imm-bottom">
+        <div class="imm-dest-bar">
+          <div class="imm-dest-name" id="immDestN">—</div>
+          <div class="imm-dest-meta" id="immDestM"></div>
+        </div>
+        <div class="imm-nav-row">
+          <button class="inbtn" id="immPrev" onclick="immNavStep(-1)" disabled>◀</button>
+          <div class="imm-next-preview" id="immNextPrev">
+            <span class="imm-next-icon">→</span>
+            <div class="imm-next-text"><strong>Next step</strong>Select a mosque to navigate</div>
+          </div>
+          <button class="inbtn" id="immNext" onclick="immNavStep(1)">▶</button>
+          <button class="imm-cmpbtn" id="immComplete" onclick="completeNight()">✓ Night</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add hint -->
+    <div class="add-hint" id="addHint">
+      <div class="add-hint-ring">🕌</div>
+      <div class="add-hint-lbl">Tap map to place mosque</div>
+    </div>
+    <!-- Legend -->
+    <div class="map-legend">
+      <div class="legend-row"><div class="ldot" style="background:var(--gold)"></div>Mosque</div>
+      <div class="legend-row"><div class="ldot" style="background:var(--metro)"></div>Metro</div>
+      <div class="legend-row"><div class="ldot" style="background:#E84040"></div>Selected</div>
+      <div class="legend-row"><div class="ldot" style="background:#4A9ECC"></div>You</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRESS MODAL -->
+<div class="prog-modal" id="progModal">
+  <div class="prog-panel">
+    <div class="prog-header">
+      <div class="prog-title">⭐ Ramadan Progress</div>
+      <button class="prog-close" onclick="closeProgress()">✕</button>
+    </div>
+    <div class="prog-stats">
+      <div class="prog-stat"><div class="prog-stat-v" id="pgDone">0</div><div class="prog-stat-l">Completed</div></div>
+      <div class="prog-stat"><div class="prog-stat-v" id="pgRemain">30</div><div class="prog-stat-l">Remaining</div></div>
+      <div class="prog-stat"><div class="prog-stat-v" id="pgDay">Day 1</div><div class="prog-stat-l">Today</div></div>
+    </div>
+    <div class="prog-grid" id="progGrid"></div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="set-modal" id="setModal">
+  <div class="set-panel">
+    <div class="set-title">⚙ Settings</div>
+    <div class="set-sec">
+      <span class="set-lbl">Immersive Theme</span>
+      <div class="theme-grid" id="themeGrid"></div>
+    </div>
+    <div class="set-sec">
+      <span class="set-lbl">GPS Navigation</span>
+      <div class="tog-row">
+        <button class="tog-sw" id="gpsTog" onclick="toggleGPS()"></button>
+        <span class="tog-lbl">Enable GPS for auto-advance & live location</span>
+      </div>
+    </div>
+    <div class="set-btns">
+      <button class="sbtn sbtn-cancel" onclick="closeSettings()">Cancel</button>
+      <button class="sbtn sbtn-save" onclick="closeSettings()">Save &amp; Close</button>
+    </div>
+    <button class="reset-link" onclick="confirmReset()">Reset all progress</button>
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-ov" id="addModal">
+  <div class="modal-box">
+    <div class="modal-title">Add Mosque</div>
+    <label class="mlbl">Mosque Name</label>
+    <input class="minput" id="addName" placeholder="Enter name…" onkeydown="if(event.key==='Enter')confirmAdd()">
+    <label class="mlbl">Coordinates</label>
+    <input class="minput" id="addCoords" placeholder="Click map first…" readonly>
+    <div class="mbtns">
+      <button class="mbtn mbtn-cancel" onclick="closeAddModal()">Cancel</button>
+      <button class="mbtn mbtn-ok" onclick="confirmAdd()">Add Mosque</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE BAR -->
+<div class="del-bar" id="delBar">
+  <div class="del-msg">Remove <span class="del-name" id="delName"></span> from your journey?</div>
+  <button class="dbtn dbtn-no" onclick="cancelDelete()">No</button>
+  <button class="dbtn dbtn-yes" onclick="confirmDelete()">Remove</button>
+</div>
+
+<!-- COMPLETE FLASH -->
+<div class="complete-flash" id="completeFlash">
+  <div class="cf-inner">
+    <div class="cf-star">🕌✨</div>
+    <div class="cf-text" id="cfText">Night Complete!</div>
+    <div class="cf-sub" id="cfSub">Day 1 of Ramadan</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// =============================================
+// STATE
+// =============================================
+let mosques=[], metros=[], selectedMosque=null, nearestMetro=null;
+let currentStep=0, routeSteps=[], routeGeom=[], routeTotalDist=0, routeTotalDur=0;
+let routeLayer=null, arrowMarkers=[], segmentLayers=[];
+let mosqueMarkers={}, metroMarkers=[], userMarker=null;
+let addMode=false, pendingCoords=null, pendingDeleteName=null;
+let inNav=false, inImm=false;
+let navMode='walking'; // 'walking' | 'driving'
+let gpsEnabled=false, gpsWatchId=null, gpsFirstFix=true;
+let accuracyCircle=null;
+let userLat=null, userLng=null, compassHeading=null;
+let settings=JSON.parse(localStorage.getItem('rmSettings')||'{"theme":"default"}');
+let visits=JSON.parse(localStorage.getItem('rmVisits')||'[]');
+// visits format: [{day:1, mosqueName:'X', date:'2024-03-11'}]
+
+// =============================================
+// THEMES — 8px pixel art, 25×62 grid (200×496 px)
+// Each panel: flag strip top + landmark + ground
+// =============================================
+const THEMES = {
+  default:   {name:'🌙 Default'},
+  egypt:     {name:'🇪🇬 Egypt'},
+  palestine: {name:'🇵🇸 Palestine'},
+  saudi:     {name:'🇸🇦 Saudi Arabia'},
+  malaysia:  {name:'🇲🇾 Malaysia'},
+  turkey:    {name:'🇹🇷 Turkey'},
+  indonesia: {name:'🇮🇩 Indonesia'},
+  morocco:   {name:'🇲🇦 Morocco'}
+};
+
+function getBuildingSVG(theme, side) {
+  // 64×64 pixel art grid, each pixel = 3px → 192×192px viewBox
+  // P(x, y, w, h, color) draws pixel blocks
+  const P = (x,y,w,h,c) => `<rect x="${x*3}" y="${y*3}" width="${w*3}" height="${h*3}" fill="${c}"/>`;
+  const flip = side === 'right' ? ' transform="translate(192,0) scale(-1,1)"' : '';
+  let d = '';
+
+  try { switch(theme) {
+
+  // ── EGYPT: Great Pyramid of Giza + Egyptian flag ──────────────────────────
+  case 'egypt': {
+    const sky='#87CEEB', sand='#E8C87A', sandD='#C8A850', stone='#D4B870', stoneS='#A08040', gold='#FFD700', white='#FFFFFF', red='#CE1126', black='#000000', palmT='#7A4A1A', palmL='#2A7010';
+    // Sky
+    for(let r=0;r<40;r++) d+=P(0,r,64,1,sky);
+    // Sand ground
+    for(let r=40;r<64;r++) d+=P(0,r,64,1,r<44?sand:sandD);
+    // Pyramid: tip at (32,8) base at row 38, each row 2px wider
+    for(let r=0;r<30;r++){const w=1+r*2,x=32-Math.floor(r);d+=P(Math.max(0,x),8+r,Math.min(w,64),1,r%4===3?stoneS:stone);}
+    // Pyramid shadow (right face)
+    for(let r=0;r<30;r++){const w=r,x=32+1;d+=P(x,8+r,Math.min(w,30),1,stoneS);}
+    // Sphinx outline at base right
+    d+=P(44,37,10,4,sand); d+=P(46,35,6,3,sand); d+=P(48,33,4,4,stone); // head+body
+    d+=P(44,38,2,3,sandD); d+=P(50,38,4,3,sandD); // paws
+    // Palm tree left
+    d+=P(4,28,1,12,palmT);
+    d+=P(1,22,7,3,palmL); d+=P(0,24,5,2,palmL); d+=P(3,20,4,3,palmL);
+    // Flag strip bottom (rows 56-63) — red/white/black horiz
+    d+=P(0,56,64,3,red); d+=P(0,59,64,3,white); d+=P(0,62,64,2,black);
+    // Eagle of Saladin on white
+    d+=P(28,59,8,1,gold); d+=P(26,60,12,1,gold); d+=P(27,61,10,1,gold); d+=P(29,60,6,1,white);
+    break;
+  }
+
+  // ── PALESTINE: Dome of the Rock + Palestinian flag ────────────────────────
+  case 'palestine': {
+    const sky='#1A3A6A', stone='#C8B890', stoneDk='#A09070', gold='#D4A820', goldL='#F0C840', blue='#5090B8', green='#009000', black='#000000', white='#FFFFFF', red='#CE1126', olive='#4A7020', oliveD='#2A5010';
+    // Night sky
+    for(let r=0;r<45;r++) d+=P(0,r,64,1,sky);
+    // Stone ground
+    for(let r=45;r<64;r++) d+=P(0,r,64,1,r<50?stone:stoneDk);
+    // Dome of the Rock
+    // Platform base
+    d+=P(8,44,48,8,stone); d+=P(8,44,48,1,'#E8D8B8');
+    // Arch row
+    for(let i=0;i<5;i++){d+=P(10+i*9,38,6,6,stone);d+=P(11+i*9,37,4,1,stone);d+=P(12+i*9,36,2,1,stone);}
+    // Wall drum
+    d+=P(12,30,40,8,stone); d+=P(12,29,40,1,'#E0D0B0');
+    // Decorative tile band
+    d+=P(12,28,40,2,green); d+=P(12,27,40,1,blue); d+=P(12,30,40,1,gold);
+    // Windows in drum
+    for(let i=0;i<5;i++){d+=P(14+i*8,31,4,6,blue);d+=P(15+i*8,30,2,1,blue);}
+    // Octagonal cladding  
+    d+=P(14,22,36,8,'#C8A840'); d+=P(14,21,36,1,goldL);
+    // Dome cylinder
+    d+=P(20,16,24,6,gold); d+=P(20,15,24,1,goldL);
+    // Gold dome (rounded)
+    const domePts=[[6,4],[4,3],[3,2],[2,2],[2,1],[1,1],[1,1],[0,1]];
+    for(let r=0;r<8;r++){const [lo]=domePts[r];d+=P(lo+20,7+r,24-lo*2,1,r<3?goldL:gold);}
+    d+=P(30,5,4,2,goldL); d+=P(31,3,2,2,'#FFFFFF'); // finial
+    // Olive trees
+    d+=P(4,36,2,8,olive); d+=P(1,30,8,4,oliveD); d+=P(2,28,6,4,olive);
+    // Flag bottom
+    d+=P(0,56,64,3,black); d+=P(0,59,64,3,white); d+=P(0,62,64,2,green);
+    for(let r=0;r<8;r++){const w=Math.round(r*(8/7));d+=P(0,56+r,w,1,red);}
+    break;
+  }
+
+  // ── SAUDI ARABIA: Abraj Al-Bait (Clock Tower) + Saudi flag ───────────────
+  case 'saudi': {
+    const sky='#0A0510', bldDk='#1A2018', bld='#2A3528', kaaba='#0A0A0A', gold='#C8A020', goldL='#E0B830', clockF='#F8F8F8', clockH='#101010', green='#006C35', white='#FFFFFF';
+    // Night sky
+    for(let r=0;r<58;r++) d+=P(0,r,64,1,sky);
+    // Ground
+    for(let r=58;r<64;r++) d+=P(0,r,64,1,'#1A1A0A');
+    // Side buildings
+    d+=P(0,30,8,34,bldDk); d+=P(1,28,6,4,bld);
+    d+=P(56,30,8,34,bldDk); d+=P(57,28,6,4,bld);
+    d+=P(4,20,6,44,bldDk); d+=P(5,18,4,4,bld);
+    d+=P(54,20,6,44,bldDk); d+=P(55,18,4,4,bld);
+    // Main tower body
+    d+=P(22,12,20,52,bld);
+    // Clock faces (4 sides — front only visible here)
+    d+=P(24,18,16,14,clockF); // clock face
+    d+=P(25,19,14,12,'#F0F0F0');
+    // Clock hands
+    d+=P(31,20,2,6,clockH); // minute hand (12 o'clock)
+    d+=P(31,25,4,2,clockH); // hour hand (3 o'clock)
+    d+=P(31,24,2,1,'#800000'); // center
+    // Hour markers
+    for(let i=0;i<12;i++){
+      const a=i*30*Math.PI/180, cx=32,cy=25;
+      const mx=Math.round(cx+Math.sin(a)*5), my=Math.round(cy-Math.cos(a)*5);
+      d+=P(mx,my,1,1,clockH);
+    }
+    // Tower floors
+    for(let r=0;r<8;r++) d+=P(22,35+r*4,20,1,bldDk);
+    // Lit windows
+    for(let r=0;r<5;r++) for(let c=0;c<3;c++){
+      if((r+c)%2===0) d+=P(23+c*6,36+r*4,4,3,goldL);
+    }
+    // Tower top ornament
+    d+=P(26,8,12,5,bld); d+=P(28,5,8,4,bld);
+    d+=P(30,3,4,2,gold); d+=P(31,1,2,2,gold); d+=P(31,0,2,1,goldL);
+    // Islamic crescent at peak
+    d+=P(29,2,6,3,gold); d+=P(31,3,2,1,sky); d+=P(30,2,1,1,sky);
+    // Kaaba at base
+    d+=P(26,52,12,10,kaaba); d+=P(27,52,10,1,gold); d+=P(30,57,4,3,'#1A0A00');
+    // Flag strip
+    d+=P(0,57,64,7,green);
+    // Sword (white, horizontal center)
+    d+=P(4,60,56,1,white); d+=P(4,59,2,1,white); d+=P(58,59,2,1,white); d+=P(32,61,2,2,white);
+    // Shahada text dots
+    d+=P(10,58,3,1,white); d+=P(16,58,2,1,white); d+=P(21,58,4,1,white); d+=P(28,58,3,1,white); d+=P(34,58,2,1,white); d+=P(40,58,4,1,white); d+=P(47,58,3,1,white);
+    break;
+  }
+
+  // ── MALAYSIA: Petronas Twin Towers + Malaysian flag ───────────────────────
+  case 'malaysia': {
+    const sky='#071828', twr='#5888B0', twrL='#70A0C8', win='#FFD040', bridge='#4878A0', ground='#0E1A0A', red='#CC0001', white='#FFFFFF', blue='#003580', yellow='#FFCC00';
+    // Night sky
+    for(let r=0;r<56;r++) d+=P(0,r,64,1,sky);
+    for(let r=56;r<64;r++) d+=P(0,r,64,1,ground);
+    // LEFT tower (cols 4-22)
+    const drawTower=(ox)=>{
+      d+=P(ox,24,18,40,twr); d+=P(ox,22,18,2,twrL);
+      d+=P(ox+1,18,16,4,twr); d+=P(ox+2,14,14,4,twr);
+      d+=P(ox+3,10,12,4,twr); d+=P(ox+4,8,10,2,twr);
+      d+=P(ox+5,6,8,2,twrL); d+=P(ox+6,4,6,2,twrL);
+      d+=P(ox+7,2,4,2,twrL); d+=P(ox+8,1,2,1,'#B0D0F0');
+      d+=P(ox+9,0,1,1,'#D0E8FF');
+      // Floor lines
+      for(let r=0;r<5;r++) d+=P(ox,25+r*8,18,1,twrL);
+      // Lit windows
+      for(let r=0;r<5;r++) for(let c=0;c<4;c++)
+        if((r+c)%2===0) d+=P(ox+1+c*4,26+r*8,3,5,win);
+    };
+    drawTower(4); drawTower(42);
+    // Sky bridge (rows 30-33, between towers)
+    d+=P(22,30,20,4,bridge);
+    // Ring connectors
+    d+=P(20,28,24,2,twr); d+=P(20,32,24,2,twr);
+    // Flag strip bottom
+    const stripes=['#CC0001','#FFFFFF'];
+    for(let i=0;i<8;i++) d+=P(0,57+Math.floor(i/2),64,1,stripes[i%2]);
+    d+=P(0,57,30,4,blue);
+    // Crescent+star on blue
+    d+=P(3,58,6,3,yellow); d+=P(5,59,4,1,blue); d+=P(4,58,1,1,blue);
+    d+=P(12,58,1,1,yellow); d+=P(11,59,3,1,yellow); d+=P(12,60,1,1,yellow);
+    break;
+  }
+
+  // ── TURKEY: Hagia Sophia + Turkish flag ──────────────────────────────────
+  case 'turkey': {
+    const sky='#1A3050', stone='#D4C8A8', stoneDk='#B8A888', dome='#C8B890', domeL='#E0D0B8', win='#7090C0', red='#E30A17', white='#FFFFFF', minaret='#D0C0A0';
+    // Blue dusk sky
+    for(let r=0;r<44;r++) d+=P(0,r,64,1,sky);
+    // Stone ground
+    for(let r=44;r<64;r++) d+=P(0,r,64,1,r<48?stone:stoneDk);
+    // HAGIA SOPHIA
+    // Base walls
+    d+=P(8,42,48,10,stone);
+    // Arch windows in walls
+    for(let i=0;i<5;i++){d+=P(10+i*9,44,6,7,win);d+=P(11+i*9,43,4,1,win);d+=P(12+i*9,42,2,1,win);}
+    // Buttresses
+    for(let i=0;i<4;i++) d+=P(10+i*12,36,4,8,stoneDk);
+    // Side half-domes
+    d+=P(6,36,12,6,dome); d+=P(46,36,12,6,dome);
+    for(let r=0;r<5;r++){const w=Math.round(12-r*1.2);d+=P(6+(12-w)/2,31+r,w,1,dome);d+=P(46+(12-w)/2,31+r,w,1,dome);}
+    // Main dome drum
+    d+=P(18,32,28,6,dome); d+=P(18,31,28,1,domeL);
+    // Main dome (hemispherical pixel art)
+    const domeR=[[0,28],[1,24],[1,22],[0,20],[0,18],[0,17],[1,17],[1,16]];
+    for(let r=0;r<8;r++){const off=domeR[r][1];d+=P(18,24+r,28,1,r<4?domeL:dome);}
+    for(let r=0;r<12;r++){
+      const w=28-Math.round(r*r*0.18);const ox=(28-w)/2;
+      d+=P(18+ox,20+r,w,1,r<6?domeL:dome);
+    }
+    // Minarets
+    for(const mx of [2,56]){
+      d+=P(mx,12,4,36,minaret);
+      d+=P(mx,10,4,3,domeL); // cap
+      d+=P(mx+1,8,2,2,stoneDk);
+      d+=P(mx+1,7,2,1,'#D4A020'); // crescent
+      d+=P(mx,26,4,1,stone); d+=P(mx,34,4,1,stone); // balconies
+      d+=P(mx+1,16,2,5,win); d+=P(mx+1,24,2,5,win); // windows
+    }
+    // Flag strip
+    d+=P(0,57,64,7,red);
+    // White crescent
+    d+=P(8,58,8,5,white); d+=P(10,59,6,3,red); d+=P(9,59,1,1,white); d+=P(9,60,1,1,white);
+    // White star (5pt simplified)
+    d+=P(19,59,1,1,white); d+=P(18,60,3,1,white); d+=P(17,61,5,1,white); d+=P(18,62,3,1,white); d+=P(19,63,1,1,white);
+    d+=P(17,61,1,1,white); d+=P(21,61,1,1,white);
+    break;
+  }
+
+  // ── INDONESIA: Borobudur Temple + Indonesian flag ─────────────────────────
+  case 'indonesia': {
+    const sky='#0A1808', jungle='#0A2008', stone='#9A8868', stoneDk='#706050', stoneL='#B0A080', stupa='#8A7858', ground='#1A1208', red='#CE1126', white='#FFFFFF', palm='#5A3A10', leaf='#1A6010';
+    // Dark jungle sky
+    for(let r=0;r<54;r++) d+=P(0,r,64,1,r<30?sky:jungle);
+    for(let r=54;r<64;r++) d+=P(0,r,64,1,ground);
+    // BOROBUDUR — stepped pyramid
+    // Step 1 (widest)
+    d+=P(0,48,64,8,stone); d+=P(0,48,64,1,stoneL);
+    // Step 2
+    d+=P(4,40,56,8,stone); d+=P(4,40,56,1,stoneL);
+    // Step 3
+    d+=P(8,32,48,8,stoneDk); d+=P(8,32,48,1,stoneL);
+    // Step 4
+    d+=P(12,26,40,6,stone); d+=P(12,26,40,1,stoneL);
+    // Upper circular terraces
+    d+=P(14,22,36,4,stupa); d+=P(14,21,36,1,stoneL);
+    d+=P(18,18,28,4,stupa); d+=P(18,17,28,1,stoneL);
+    // Main stupa top
+    d+=P(22,14,20,4,stupa); d+=P(24,10,16,4,stoneL);
+    d+=P(26,7,12,3,stupa); d+=P(28,4,8,3,stoneL);
+    d+=P(30,2,4,2,stupa); d+=P(31,0,2,2,stoneL); // finial
+    // Bell stupas on terraces (row of small stupas)
+    for(let i=0;i<6;i++){d+=P(5+i*9,41,5,7,stupa);d+=P(6+i*9,40,3,1,stoneL);d+=P(7+i*9,39,1,1,stoneL);}
+    for(let i=0;i<4;i++){d+=P(10+i*11,33,7,7,stupa);d+=P(11+i*11,32,5,1,stoneL);}
+    for(let i=0;i<2;i++){d+=P(18+i*16,23,8,5,stupa);d+=P(19+i*16,22,6,1,stoneL);}
+    // Decorative reliefs on steps
+    for(let s=0;s<3;s++){const yy=[50,42,34][s];for(let c=0;c<8-s;c++) d+=P(2+s*2+c*8,yy,6,2,stoneDk);}
+    // Palm trees flanking
+    for(const px of [0,58]){d+=P(px,26,2,28,palm);d+=P(px-2,20,6,4,leaf);d+=P(px-1,24,4,3,leaf);}
+    // Flag strip
+    d+=P(0,57,64,4,red);
+    d+=P(0,61,64,3,white);
+    break;
+  }
+
+  // ── MOROCCO: Hassan II Mosque (Casablanca) + Moroccan flag ────────────────
+  case 'morocco': {
+    const sky='#0A1A30', ocean='#0A2840', stone='#E8C890', stoneDk='#C8A060', tile='#1A7A40', tileB='#1040A0', gold='#D4A020', goldL='#E8B830', red='#C1272D', green='#006233', white='#FFFFFF';
+    // Ocean night sky
+    for(let r=0;r<50;r++) d+=P(0,r,64,1,r<35?sky:ocean);
+    for(let r=50;r<57;r++) d+=P(0,r,64,1,stone);
+    for(let r=57;r<64;r++) d+=P(0,r,64,1,stoneDk);
+    // HASSAN II MOSQUE MINARET (tall, central)
+    // Main minaret shaft (centered at x=26, width 12)
+    d+=P(26,2,12,55,stone);
+    // Decorative tile bands every 12 rows
+    for(let l=0;l<4;l++){
+      d+=P(26,4+l*12,12,2,tile);
+      d+=P(26,6+l*12,12,1,tileB);
+      d+=P(26,3+l*12,12,1,gold);
+    }
+    // Arched windows (pairs, 3 levels)
+    for(let l=0;l<3;l++){
+      d+=P(28,10+l*14,8,8,tileB);
+      d+=P(29,9+l*14,6,1,tileB);
+      d+=P(30,8+l*14,4,1,tileB); // arch
+      d+=P(29,10+l*14,6,6,'#0A3060'); // window glass
+    }
+    // Battlements at top
+    d+=P(25,0,14,3,goldL);
+    for(let i=0;i<3;i++) d+=P(26+i*4,0,2,2,goldL);
+    // Finial (golden balls stacked)
+    d+=P(29,0,6,2,gold); d+=P(30,0,4,1,goldL);
+    // Side mosque wings (low)
+    d+=P(4,40,22,17,stoneDk); d+=P(38,40,22,17,stoneDk);
+    // Arches on wings
+    for(let i=0;i<2;i++){
+      d+=P(5+i*8,42,5,13,stone);d+=P(6+i*8,41,3,1,stone);
+      d+=P(39+i*8,42,5,13,stone);d+=P(40+i*8,41,3,1,stone);
+    }
+    // Entrance arch  
+    d+=P(22,46,20,11,stone); d+=P(24,42,16,4,stone); d+=P(26,40,12,2,stone);
+    d+=P(24,46,16,11,tile); d+=P(26,44,12,2,tileB); // arch opening
+    // Flag strip
+    d+=P(0,57,64,7,red);
+    // Green pentagram star (simplified 5pt, centered)
+    const cx2=32,cy2=61;
+    d+=P(cx2,57,1,2,green); // top point
+    d+=P(cx2-2,59,5,1,green); d+=P(cx2-4,60,9,1,green);
+    d+=P(cx2-2,61,5,1,green);
+    d+=P(cx2-5,62,1,1,green); d+=P(cx2+4,62,1,1,green); // side points
+    d+=P(cx2-3,62,7,1,green); d+=P(cx2-2,63,5,1,green);
+    break;
+  }
+
+  // ── DEFAULT: Dark city mosque silhouette with crescent moon ───────────────
+  default: {
+    const bg='#080C14', bld='#0E1520', bldL='#161E2C', win='#D4A843', winD='#6B5120', gold='#D4A843', goldD='rgba(212,168,67,0.4)', moon='#F0D090';
+    // Dark gradient sky
+    for(let r=0;r<64;r++) d+=P(0,r,64,1,r<20?'#050710':r<40?bg:bld);
+    // Moon crescent
+    d+=P(50,4,8,8,moon); d+=P(52,4,6,8,bg); d+=P(51,5,5,6,bg);
+    // Stars
+    d+=P(5,3,1,1,moon); d+=P(15,8,1,1,moon); d+=P(35,2,1,1,moon); d+=P(42,10,1,1,moon); d+=P(10,15,1,1,moon);
+    // Left building
+    d+=P(0,20,18,44,bld); d+=P(1,18,16,4,bldL);
+    // Windows left building
+    for(let r=0;r<5;r++) for(let c=0;c<3;c++)
+      d+=P(2+c*5,22+r*7,3,4,(r+c)%3>0?win:winD);
+    // Center mosque
+    d+=P(20,32,24,32,bldL); d+=P(20,30,24,3,bld);
+    // Dome
+    for(let r=0;r<8;r++){const w=24-r*2,ox=r;d+=P(20+ox,22+r,w,1,r<4?bldL:bld);}
+    d+=P(28,16,8,6,bld);
+    // Minarets
+    d+=P(19,14,4,48,bld); d+=P(41,14,4,48,bld);
+    d+=P(19,13,4,1,gold); d+=P(41,13,4,1,gold); // balconies
+    d+=P(20,10,2,3,bldL); d+=P(42,10,2,3,bldL);
+    d+=P(20,9,2,1,gold); d+=P(42,9,2,1,gold); // crescent tips
+    // Right building  
+    d+=P(46,24,18,40,bld); d+=P(47,22,16,4,bldL);
+    for(let r=0;r<5;r++) for(let c=0;c<3;c++)
+      d+=P(47+c*5,26+r*7,3,4,(r+c)%3>0?win:winD);
+    // Gold glow at base
+    d+=P(0,60,64,2,winD); d+=P(0,62,64,2,'#1A1208');
+    break;
+  }
+
+  }} catch(e) {
+    // Crash-safe fallback
+    d = `<rect x="0" y="0" width="192" height="192" fill="#0E1118"/>`;
+  }
+
+  return `<svg viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMaxYMax meet" shape-rendering="crispEdges"><g${flip}>${d}</g></svg>`;
+}
+
+function applyTheme(theme) {
+  try {
+    if (!THEMES[theme]) theme = 'default';
+    settings.theme = theme;
+    document.documentElement.setAttribute('data-theme', theme);
+    // Refresh building SVGs if immersive is open
+    document.getElementById('immBldLeft').innerHTML = getBuildingSVG(theme, 'left');
+    document.getElementById('immBldRight').innerHTML = getBuildingSVG(theme, 'right');
+    // Update theme buttons
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.theme === theme));
+    localStorage.setItem('rmSettings', JSON.stringify(settings));
+  } catch(e) {
+    console.warn('Theme error:', e);
+    // Fallback to default without crash
+    document.documentElement.setAttribute('data-theme', 'default');
+  }
+}
+
+function buildThemeGrid() {
+  const grid = document.getElementById('themeGrid');
+  grid.innerHTML = Object.entries(THEMES).map(([k,v]) =>
+    `<button class="theme-btn ${settings.theme===k?'active':''}" data-theme="${k}" onclick="applyTheme('${k}')">${v.name}</button>`
+  ).join('');
+}
+
+// =============================================
+// MAP INIT
+// =============================================
+const map = L.map('map', {center:[30.05,31.25], zoom:12, zoomControl:true, tap:true});
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution:'© OpenStreetMap © CARTO', maxZoom:20
+}).addTo(map);
+
+map.on('click', e => {
+  if (!addMode) return;
+  pendingCoords = e.latlng;
+  document.getElementById('addCoords').value = `${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
+  document.getElementById('addModal').classList.add('open');
+  document.getElementById('addName').focus();
+});
+
+// Leaflet icons
+function mkMosqueIcon(sel, done) {
+  const c = sel ? '#E84040' : done ? '#3DBA74' : '#D4A843';
+  const s = sel ? 20 : 15;
+  return L.divIcon({
+    html:`<div style="width:${s}px;height:${s}px;border-radius:50%;background:${c};border:2px solid ${sel?'#FF7070':done?'#2A8050':'#6B5120'};box-shadow:0 2px 8px rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;font-size:${s-5}px">🕌</div>`,
+    className:'', iconSize:[s,s], iconAnchor:[s/2,s/2]
+  });
+}
+function mkMetroIcon() {
+  return L.divIcon({
+    html:`<div style="width:13px;height:13px;background:#3A9BCC;border:2px solid #1A7BAA;box-shadow:0 2px 5px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff">M</div>`,
+    className:'', iconSize:[13,13], iconAnchor:[6,6]
+  });
+}
+function mkUserIcon() {
+  return L.divIcon({
+    html:`<div class="user-dot" style="margin-top:2px"></div>`,
+    className:'', iconSize:[13,13], iconAnchor:[6,6]
+  });
+}
+
+// =============================================
+// PROGRESS HELPERS
+// Night counter advances immediately on each logged visit — no date gating.
+// You can log all 30 nights back to back.
+// Date is stored for reference only.
+// =============================================
+function getToday() { return new Date().toISOString().split('T')[0]; }
+function getCurrentDay() { return visits.length + 1; }
+function isRamadanComplete() { return visits.length >= 30; }
+function isCompleted(mosqueName) { return visits.some(v => v.mosqueName === mosqueName); }
+function getVisitDay(mosqueName) { const v = visits.find(v => v.mosqueName === mosqueName); return v ? v.day : null; }
+
+// =============================================
+// KML PARSING
+// =============================================
+document.getElementById('kmlInput').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    const {ms, mt} = parseKML(ev.target.result);
+    mosques = ms; metros = mt;
+    renderAll(); fitAll();
+    toast(`Loaded ${ms.length} mosques, ${mt.length} metro stations`);
+  };
+  r.readAsText(f);
+  e.target.value=''; // allow reload
+});
+
+function parseKML(txt) {
+  const doc = new DOMParser().parseFromString(txt, 'text/xml');
+  const pms = [...doc.querySelectorAll('Placemark')];
+  const ms = [], mt = [];
+  pms.forEach(pm => {
+    const name = pm.querySelector('name')?.textContent?.trim() || 'Unnamed';
+    const ce = pm.querySelector('coordinates'); if (!ce) return;
+    const p = ce.textContent.trim().split(',');
+    const lng = parseFloat(p[0]), lat = parseFloat(p[1]);
+    if (isNaN(lat)||isNaN(lng)) return;
+    const fn = (pm.closest('Folder')?.querySelector('name')?.textContent||'').toLowerCase();
+    const nl = name.toLowerCase();
+    const isMtr = nl.includes('metro')||nl.includes('station')||nl.includes('محطة')||fn.includes('metro')||fn.includes('station');
+    (isMtr ? mt : ms).push({name, lat, lng});
+  });
+  return {ms, mt};
+}
+
+// =============================================
+// RENDER
+// =============================================
+function renderAll() {
+  clearMapLayers();
+  mosques.forEach(m => {
+    const done = isCompleted(m.name);
+    const mk = L.marker([m.lat, m.lng], {icon: mkMosqueIcon(false, done)}).addTo(map).bindTooltip(m.name, {direction:'top',offset:[0,-6]});
+    mk.on('click', () => selectMosque(m));
+    mosqueMarkers[m.name] = mk;
+  });
+  metros.forEach(m => {
+    const mk = L.marker([m.lat, m.lng], {icon: mkMetroIcon()}).addTo(map).bindTooltip(m.name, {direction:'top',offset:[0,-6]});
+    metroMarkers.push(mk);
+  });
+  renderList(); updateStats();
+}
+
+function clearMapLayers() {
+  Object.values(mosqueMarkers).forEach(m => map.removeLayer(m));
+  metroMarkers.forEach(m => map.removeLayer(m));
+  mosqueMarkers = {}; metroMarkers = [];
+  clearRoute();
+}
+
+function clearRoute() {
+  if (routeLayer) { map.removeLayer(routeLayer); routeLayer = null; }
+  segmentLayers.forEach(l => map.removeLayer(l)); segmentLayers = [];
+  arrowMarkers.forEach(m => map.removeLayer(m)); arrowMarkers = [];
+}
+
+function renderList() {
+  const q = document.getElementById('searchBox').value.toLowerCase();
+  const el = document.getElementById('mosqueList');
+  const filtered = mosques.filter(m => m.name.toLowerCase().includes(q));
+  if (!filtered.length) {
+    el.innerHTML = `<div class="empty-msg"><div class="empty-icon">🔍</div>No mosques match.</div>`;
+    return;
+  }
+  el.innerHTML = filtered.map(m => {
+    const done = isCompleted(m.name);
+    const day = getVisitDay(m.name);
+    const isSel = selectedMosque?.name === m.name;
+    return `<div class="mosque-item ${isSel?'selected':''} ${done?'completed':''}" onclick="selByName('${esc(m.name)}')">
+      <div class="mosque-item-info">
+        <div class="mosque-item-name">${m.name}</div>
+        <div class="mosque-item-sub">${m.lat.toFixed(4)}°N ${m.lng.toFixed(4)}°E</div>
+        <div class="mosque-badges">
+          ${done?`<span class="badge badge-done">✓ Visited</span>`:''}
+          ${day?`<span class="badge badge-day">Day ${day}</span>`:''}
+        </div>
+      </div>
+      <button class="del-btn" onclick="event.stopPropagation();promptDelete('${esc(m.name)}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function updateStats() {
+  document.getElementById('sTot').textContent = mosques.length;
+  document.getElementById('sVis').textContent = visits.filter(v => mosques.find(m => m.name===v.mosqueName)).length;
+  document.getElementById('sMet').textContent = metros.length;
+  document.getElementById('statsRow').style.display = mosques.length ? 'flex' : 'none';
+}
+
+function fitAll() {
+  if (!mosques.length) return;
+  const all = [...mosques, ...metros];
+  const lats = all.map(m => m.lat), lngs = all.map(m => m.lng);
+  map.fitBounds([[Math.min(...lats),Math.min(...lngs)],[Math.max(...lats),Math.max(...lngs)]], {padding:[45,45]});
+}
+
+// =============================================
+// SELECT MOSQUE
+// =============================================
+function selByName(n) { const m = mosques.find(m => m.name===n); if (m) selectMosque(m); }
+
+async function selectMosque(mosque) {
+  selectedMosque = mosque;
+  currentStep = 0;
+  // Update marker styles
+  Object.entries(mosqueMarkers).forEach(([n,mk]) => mk.setIcon(mkMosqueIcon(n===mosque.name, isCompleted(n))));
+  renderList();
+  clearRoute();
+  nearestMetro = findNearest(mosque);
+  // Show panel immediately (with loading state)
+  showTodayPanel(mosque, null, null);
+  // Fly to mosque area
+  map.flyTo([mosque.lat, mosque.lng], 15, {duration:1.2});
+
+  if (!nearestMetro) {
+    routeSteps=[]; routeGeom=[]; routeTotalDist=0; routeTotalDur=0;
+    return;
+  }
+
+  // Fetch current mode route + comparison route in parallel
+  const otherMode = navMode === 'walking' ? 'driving' : 'walking';
+  const [primaryData, compareData] = await Promise.all([
+    fetchRoute(nearestMetro, mosque, navMode),
+    fetchRoute(nearestMetro, mosque, otherMode)
+  ]);
+
+  if (primaryData) {
+    routeSteps = primaryData.steps; routeGeom = primaryData.geom;
+    routeTotalDist = primaryData.dist; routeTotalDur = primaryData.dur;
+    drawRoute(primaryData.geom, -1);
+  } else {
+    // Fallback: straight line, time at 5 km/h
+    const d = haversine(nearestMetro.lat,nearestMetro.lng,mosque.lat,mosque.lng);
+    const dur = d / WALK_MPS;
+    routeSteps = [{instr:`Head toward ${mosque.name}`,dist:d,dur:dur,maneuver:'straight',type:'',latlng:[mosque.lat,mosque.lng]}];
+    routeGeom = [[nearestMetro.lat,nearestMetro.lng],[mosque.lat,mosque.lng]];
+    routeTotalDist=d; routeTotalDur=dur;
+    drawRoute(routeGeom, -1);
+  }
+
+  // Update panel with real data + comparison
+  showTodayPanel(mosque, primaryData, compareData);
+}
+
+function showTodayPanel(mosque, primaryData, compareData) {
+  const panel = document.getElementById('todayPanel');
+  panel.classList.add('visible');
+  document.getElementById('tpName').textContent = mosque.name;
+  const done = isCompleted(mosque.name);
+  const day = getVisitDay(mosque.name);
+  const metro = nearestMetro;
+  const isWalking = navMode === 'walking';
+
+  // Crow-flies straight-line reference (absolute minimum possible walk distance)
+  const crowFlies = metro ? haversine(metro.lat, metro.lng, mosque.lat, mosque.lng) : null;
+
+  let infoHTML = '';
+  if (metro) {
+    infoHTML += `From metro: <span class="today-metro-name">${metro.name}</span> (${fmtD(crowFlies || 0)} away)<br>`;
+  }
+
+  if (primaryData) {
+    const modeIcon = isWalking ? '🚶' : '🚗';
+    const modeLabel = isWalking ? 'Walk' : 'Drive';
+    const modeColor = isWalking ? 'rgba(100,200,255,0.9)' : 'var(--gold)';
+    // Walking: duration was recalculated at 5 km/h in applyWalkTimes
+    infoHTML += `<strong style="color:${modeColor}">${modeIcon} ${modeLabel}:</strong> ${fmtD(primaryData.dist)} · <strong style="color:${modeColor}">${fmtT(primaryData.dur)}</strong>`;
+
+    // For walking: show crow-flies as minimum reference
+    if (isWalking && crowFlies) {
+      const extra = primaryData.dist - crowFlies;
+      if (extra > 30) {
+        infoHTML += ` <span style="color:var(--text-muted);font-size:0.7em">(📐 ${fmtD(crowFlies)} direct +${fmtD(extra)} via streets)</span>`;
+      }
+    }
+
+    // Other mode comparison
+    if (compareData) {
+      const otherIcon = isWalking ? '🚗' : '🚶';
+      const otherLabel = isWalking ? 'Drive' : 'Walk';
+      infoHTML += `<br><span style="color:var(--text-muted);font-size:0.72em">${otherIcon} ${otherLabel}: ${fmtD(compareData.dist)} · ${fmtT(compareData.dur)}</span>`;
+    }
+    infoHTML += '<br>';
+  } else if (primaryData === null && metro) {
+    infoHTML += `<span style="color:var(--text-muted)">Calculating route…</span>`;
+    if (crowFlies) infoHTML += ` <span style="color:var(--text-muted);font-size:0.7em">(~${fmtD(crowFlies)} direct, ~${fmtT(crowFlies / WALK_MPS)} walk)</span>`;
+    infoHTML += '<br>';
+  }
+
+  if (done) infoHTML += `✓ Visited on Night ${day}`;
+  else if (isRamadanComplete()) infoHTML += `<span style="color:var(--gold)">All 30 nights complete! 🌙</span>`;
+  else infoHTML += `Tonight is Night ${getCurrentDay()} of Ramadan`;
+
+  document.getElementById('tpInfo').innerHTML = infoHTML;
+  const completeBtn = document.getElementById('tpCompleteBtn');
+  completeBtn.disabled = done || isRamadanComplete();
+  completeBtn.textContent = done ? '✓ Visited' : isRamadanComplete() ? '✓ All Done' : '✓ Complete Night';
+}
+
+function closePanel() {
+  document.getElementById('todayPanel').classList.remove('visible');
+  if (inNav) closeNavigation();
+  else clearRoute();      // clear route even if not actively navigating
+}
+
+// =============================================
+// MODE TOGGLE (walk/drive)
+// =============================================
+function setMode(mode) {
+  navMode = mode;
+  document.getElementById('modeWalk').classList.toggle('active', mode==='walking');
+  document.getElementById('modeDrive').classList.toggle('active', mode==='driving');
+  // Update button styles to signal route type visually
+  document.getElementById('modeWalk').style.color = mode==='walking' ? 'rgba(100,200,255,0.9)' : '';
+  document.getElementById('modeDrive').style.color = mode==='driving' ? 'var(--gold)' : '';
+  if (selectedMosque) selectMosque(selectedMosque); // refetch route with new mode
+}
+
+// =============================================
+// ROUTING
+// Walking speed: 5 km/h = 1.39 m/s (never use router durations for walking)
+// Driving: use OSRM car durations (accurate)
+// Walking: race Valhalla + OSRM foot, pick SHORTER distance, recalc time
+// =============================================
+const WALK_MPS = 1.39;     // 5 km/h average walking speed
+const WALK_MPM = WALK_MPS * 60; // metres per minute
+
+// Fix walking durations: recalculate every step's duration from its distance
+function applyWalkTimes(result) {
+  if (!result) return result;
+  result.dur = result.dist / WALK_MPS; // total seconds at 5 km/h
+  result.steps = result.steps.map(s => ({
+    ...s,
+    dur: s.dist > 0 ? s.dist / WALK_MPS : 0
+  }));
+  return result;
+}
+
+// Decode Valhalla's encoded polyline (precision 6)
+function decodePolyline6(encoded) {
+  const coords = [];
+  let idx = 0, lat = 0, lng = 0;
+  while (idx < encoded.length) {
+    let b, shift = 0, result = 0;
+    do { b = encoded.charCodeAt(idx++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+    lat += (result & 1) ? ~(result >> 1) : (result >> 1);
+    shift = 0; result = 0;
+    do { b = encoded.charCodeAt(idx++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+    lng += (result & 1) ? ~(result >> 1) : (result >> 1);
+    coords.push([lat / 1e6, lng / 1e6]);
+  }
+  return coords;
+}
+
+// Valhalla maneuver type → direction string
+const VALHALLA_TYPE = {
+  1:'depart',2:'depart',3:'depart',
+  4:'arrive',5:'arrive',6:'arrive',
+  7:'straight',8:'straight',
+  9:'slight right',10:'right',11:'sharp right',
+  12:'uturn',13:'uturn',
+  14:'sharp left',15:'left',16:'slight left',
+  17:'straight',18:'slight right',19:'slight left',
+  20:'right',21:'left',
+  22:'straight',23:'slight right',24:'slight left',
+  25:'straight',26:'roundabout',27:'straight',28:'straight',29:'straight'
+};
+
+async function fetchRouteValhalla(from, to) {
+  // Use most permissive pedestrian costing:
+  // walkway_factor < 1 = prefer footpaths/walkways
+  // alley_factor ≈ 1 = don't penalise alleys (shortcuts)
+  // driveway_factor ≈ 1 = allow driveways as shortcuts
+  const body = {
+    locations: [
+      {lon: from.lng, lat: from.lat, type: 'break'},
+      {lon: to.lng,   lat: to.lat,   type: 'break'}
+    ],
+    costing: 'pedestrian',
+    costing_options: {
+      pedestrian: {
+        walking_speed: 5.0,
+        walkway_factor: 0.75,
+        sidewalk_factor: 0.85,
+        alley_factor: 1.0,
+        driveway_factor: 1.0,
+        step_penalty: 20,
+        use_ferry: 0,
+        use_living_streets: 1,
+        use_tracks: 1,
+        shortest: true   // ← key: optimise for distance, not time
+      }
+    },
+    directions_options: {language: 'en-US', units: 'kilometers'}
+  };
+  try {
+    const res = await fetch('https://valhalla.openstreetmap.de/route', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error('Valhalla HTTP ' + res.status);
+    const data = await res.json();
+    if (!data.trip || !data.trip.legs) return null;
+    const leg = data.trip.legs[0];
+    const geom = decodePolyline6(leg.shape);
+    const steps = leg.maneuvers.map(m => ({
+      instr: m.instruction || m.verbal_pre_transition_instruction || 'Continue',
+      dist:  m.length * 1000,
+      dur:   0, // will be fixed by applyWalkTimes
+      maneuver: VALHALLA_TYPE[m.type] || 'straight',
+      type: (m.type >= 4 && m.type <= 6) ? 'arrive' : (m.type <= 3 ? 'depart' : ''),
+      latlng: geom[m.begin_shape_index] || null
+    }));
+    return {steps, geom, dist: data.trip.summary.length * 1000, dur: 0, source: 'valhalla'};
+  } catch(e) {
+    console.warn('Valhalla failed:', e.message);
+    return null;
+  }
+}
+
+async function fetchRouteOSRMFoot(from, to) {
+  try {
+    const url = `https://router.project-osrm.org/route/v1/foot/${from.lng},${from.lat};${to.lng},${to.lat}?steps=true&geometries=geojson&overview=full`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.code !== 'Ok') return null;
+    const route = data.routes[0];
+    const steps = [];
+    route.legs.forEach(leg => leg.steps.forEach(s => {
+      steps.push({
+        instr: buildInstrOSRM(s),
+        dist: s.distance,
+        dur: 0, // will be fixed by applyWalkTimes
+        maneuver: s.maneuver?.modifier || s.maneuver?.type || 'straight',
+        type: s.maneuver?.type || '',
+        latlng: s.maneuver?.location ? [s.maneuver.location[1], s.maneuver.location[0]] : null
+      });
+    }));
+    return {steps, geom: route.geometry.coordinates.map(c => [c[1],c[0]]), dist: route.distance, dur: 0, source: 'osrm-foot'};
+  } catch(e) { return null; }
+}
+
+async function fetchRouteOSRMDriving(from, to) {
+  try {
+    const url = `https://router.project-osrm.org/route/v1/driving/${from.lng},${from.lat};${to.lng},${to.lat}?steps=true&geometries=geojson&overview=full`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.code !== 'Ok') return null;
+    const route = data.routes[0];
+    const steps = [];
+    route.legs.forEach(leg => leg.steps.forEach(s => {
+      steps.push({
+        instr: buildInstrOSRM(s),
+        dist: s.distance,
+        dur: s.duration, // driving: use router duration (accurate)
+        maneuver: s.maneuver?.modifier || s.maneuver?.type || 'straight',
+        type: s.maneuver?.type || '',
+        latlng: s.maneuver?.location ? [s.maneuver.location[1], s.maneuver.location[0]] : null
+      });
+    }));
+    return {steps, geom: route.geometry.coordinates.map(c => [c[1],c[0]]), dist: route.distance, dur: route.duration, source: 'osrm-drive'};
+  } catch(e) { return null; }
+}
+
+async function fetchRoute(from, to, mode) {
+  if (mode === 'walking') {
+    // Race Valhalla (shortest=true pedestrian) vs OSRM foot simultaneously
+    // Pick whichever returns the SHORTER distance
+    const [v, o] = await Promise.allSettled([
+      fetchRouteValhalla(from, to),
+      fetchRouteOSRMFoot(from, to)
+    ]);
+    const vRes = v.status === 'fulfilled' ? v.value : null;
+    const oRes = o.status === 'fulfilled' ? o.value : null;
+
+    let best = null;
+    if (vRes && oRes) {
+      // Pick shorter distance route
+      best = vRes.dist <= oRes.dist ? vRes : oRes;
+      console.log(`Walk routes — Valhalla: ${(vRes.dist/1000).toFixed(2)}km, OSRM: ${(oRes.dist/1000).toFixed(2)}km → using ${best.source}`);
+    } else {
+      best = vRes || oRes;
+    }
+
+    // ALWAYS recalculate durations using real walking speed — never trust router
+    return applyWalkTimes(best);
+  } else {
+    // Driving: OSRM driving duration is accurate
+    return fetchRouteOSRMDriving(from, to);
+  }
+}
+
+function buildInstrOSRM(s) {
+  const t = s.maneuver?.type||'', m = s.maneuver?.modifier||'', n = s.name||'';
+  if (t==='depart') return n ? `Start on ${n}` : 'Start walking';
+  if (t==='arrive') return n ? `Arrive at ${n}` : 'You have arrived';
+  if (t==='turn') return `Turn ${m}${n?' onto '+n:''}`;
+  if (t==='new name') return `Continue onto ${n}`;
+  if (t==='continue') return `Continue${n?' on '+n:''}`;
+  if (t==='roundabout') return `Enter roundabout${n?' onto '+n:''}`;
+  if (t==='fork') return `Keep ${m}${n?' on '+n:''}`;
+  return (m ? m[0].toUpperCase()+m.slice(1)+' ' : '') + (n||'Continue');
+}
+
+// =============================================
+// DRAW ROUTE — visual style differs per mode
+// =============================================
+function drawRoute(coords, activeStep) {
+  clearRoute();
+  if (!coords.length) return;
+
+  const isWalking = navMode === 'walking';
+  // Walking: blue-white dashed pedestrian style
+  // Driving: gold solid road style
+  const pendingColor  = isWalking ? 'rgba(80,160,220,0.55)'  : 'rgba(90,80,60,0.55)';
+  const activeColor   = isWalking ? 'rgba(100,200,255,0.92)' : 'rgba(212,168,67,0.92)';
+  const glowColor     = isWalking ? 'rgba(80,180,255,0.12)'  : 'rgba(212,168,67,0.08)';
+  const arrowColor    = isWalking ? 'rgba(100,200,255,0.75)' : 'rgba(212,168,67,0.75)';
+  const dashArray     = isWalking ? '6,7' : null;
+  const pendingWeight = isWalking ? 3 : 3;
+
+  // Glow under full route
+  L.polyline(coords, {color:glowColor, weight:14}).addTo(map);
+
+  // Pending/unwalked portion of route
+  routeLayer = L.polyline(coords, {
+    color: pendingColor, weight: pendingWeight, opacity: 0.9,
+    ...(dashArray ? {dashArray} : {})
+  }).addTo(map);
+
+  // Completed (active) portion
+  if (activeStep >= 0 && routeSteps.length) {
+    const numPts = coords.length;
+    const stepFrac = Math.min((activeStep + 1) / routeSteps.length, 1);
+    const splitAt = Math.floor(stepFrac * numPts);
+    if (splitAt > 0) {
+      const doneLayer = L.polyline(coords.slice(0, splitAt + 1), {
+        color: activeColor, weight: 4.5, opacity: 1
+      }).addTo(map);
+      segmentLayers.push(doneLayer);
+    }
+  }
+
+  // Direction arrows along route
+  const step = Math.max(5, Math.floor(coords.length / 14));
+  for (let i = step; i < coords.length - 1; i += step) {
+    const p1 = coords[i], p2 = coords[Math.min(i+1, coords.length-1)];
+    const b = getBearing(p1[0],p1[1],p2[0],p2[1]);
+    const icon = isWalking
+      ? `<div style="color:${arrowColor};font-size:10px;transform:rotate(${b}deg);display:inline-block;line-height:1">▲</div>`
+      : `<div style="color:${arrowColor};font-size:13px;transform:rotate(${b}deg);display:inline-block;line-height:1">▲</div>`;
+    arrowMarkers.push(L.marker(coords[i], {
+      icon: L.divIcon({html:icon, className:'', iconSize:[13,13], iconAnchor:[6,6]}),
+      interactive:false
+    }).addTo(map));
+  }
+}
+
+// =============================================
+// NAVIGATION — STANDARD MODE
+// =============================================
+function startNavigation() {
+  if (!selectedMosque || !routeSteps.length) { toast('Select a mosque with a route first'); return; }
+  inNav = true;
+  currentStep = 0;
+  document.getElementById('navOverlay').classList.add('visible');
+  document.getElementById('todayPanel').classList.remove('visible');
+  // Fly to metro start
+  if (nearestMetro) map.flyTo([nearestMetro.lat, nearestMetro.lng], 17, {duration:1});
+  syncNavHUD();
+  renderNavSteps();
+  drawRoute(routeGeom, currentStep);
+}
+
+function closeNavigation() {
+  inNav = false;
+  document.getElementById('navOverlay').classList.remove('visible');
+  clearRoute();           // always wipe route from map on nav close
+  if (selectedMosque) showTodayPanel(selectedMosque);
+}
+
+function navStep(dir) {
+  const next = currentStep + dir;
+  if (next < 0 || next >= routeSteps.length) return;
+  currentStep = next;
+  syncNavHUD();
+  renderNavSteps();
+  drawRoute(routeGeom, currentStep);
+  // Pan map to current step location
+  const step = routeSteps[currentStep];
+  if (step.latlng) map.panTo(step.latlng, {animate:true, duration:0.6});
+}
+
+const ARROW_MAP = {
+  straight:'↑','slight right':'↗',right:'→','sharp right':'↘',
+  uturn:'↓','sharp left':'↙',left:'←','slight left':'↖',
+  depart:'🚇',arrive:'🕌',roundabout:'↻',default:'↑'
+};
+const STEP_ICON_MAP = {
+  straight:'↑','slight right':'↗',right:'→','sharp right':'↘',
+  uturn:'↩',left:'←','slight left':'↖','sharp left':'↙',
+  depart:'🚇',arrive:'🏁',roundabout:'↻',default:'↑'
+};
+
+function getArrow(step) {
+  if (step.type==='arrive') return '🕌';
+  if (step.type==='depart') return '🚇';
+  return ARROW_MAP[step.maneuver] || ARROW_MAP.default;
+}
+function getIcon(step) {
+  if (step.type==='arrive') return '🕌';
+  if (step.type==='depart') return '🚇';
+  return STEP_ICON_MAP[step.maneuver] || STEP_ICON_MAP.default;
+}
+function getDeg(step) {
+  const map = {straight:0,'slight right':30,right:90,'sharp right':135,uturn:180,'sharp left':-135,left:-90,'slight left':-30,depart:0,arrive:0,roundabout:90};
+  return map[step.maneuver] ?? 0;
+}
+
+function syncNavHUD() {
+  const step = routeSteps[currentStep];
+  if (!step) return;
+  document.getElementById('navArrow').textContent = getArrow(step);
+  document.getElementById('navArrow').style.transform = `rotate(${getDeg(step)}deg)`;
+  // If GPS+compass active, override with real bearing immediately
+  setTimeout(updateNavArrow, 0);
+  document.getElementById('navInstr').textContent = step.instr;
+  document.getElementById('navDist').textContent = step.dist ? `in ${fmtD(step.dist)}` : '';
+  document.getElementById('navDestName').textContent = selectedMosque.name;
+  document.getElementById('navDestMeta').textContent = `${fmtD(routeTotalDist)} · ${fmtT(routeTotalDur)}`;
+  document.getElementById('navPrev').disabled = currentStep === 0;
+  document.getElementById('navNext').disabled = currentStep >= routeSteps.length-1;
+  // Dots
+  const dots = document.getElementById('navDots');
+  const max = Math.min(routeSteps.length, 12);
+  dots.innerHTML = Array.from({length:max}, (_,i) =>
+    `<div class="nav-dot ${i<currentStep?'done':i===currentStep?'active':''}"></div>`
+  ).join('');
+  // Complete button
+  const isDone = isCompleted(selectedMosque.name);
+  const todayDone = isRamadanComplete();
+  document.getElementById('navComplete').disabled = isDone || todayDone;
+}
+
+function renderNavSteps() {
+  const el = document.getElementById('navStepsRow');
+  el.innerHTML = routeSteps.map((s,i) => `
+    <div class="nav-step-card ${i===currentStep?'active':i<currentStep?'sdone':''}" onclick="jumpNavStep(${i})">
+      <div class="nav-step-icon">${getIcon(s)}</div>
+      <div class="nav-step-text"><strong>${s.instr.slice(0,32)}</strong>${fmtD(s.dist||0)}</div>
+    </div>`).join('');
+  // Scroll active into view
+  const active = el.querySelector('.active');
+  if (active) active.scrollIntoView({behavior:'smooth',inline:'center'});
+}
+
+window.jumpNavStep = function(i) { currentStep=i; syncNavHUD(); renderNavSteps(); drawRoute(routeGeom,i); const s=routeSteps[i]; if(s.latlng) map.panTo(s.latlng,{animate:true,duration:0.6}); };
+
+// =============================================
+// IMMERSIVE MODE — Subway Surfers perspective canvas
+// =============================================
+let cityAnimId = null;
+let cityOffset = 0;      // scrolling offset (0-1 cycle)
+let citySpeed  = 0.004;  // fraction of scene per frame
+let cityBuildings = [];  // pre-seeded building data
+const CITY_SEGS = 14;    // number of building segments visible
+
+// Colour palettes per theme (stone, accent, window, road)
+const THEME_PALETTE = {
+  egypt:     ['#C8A860','#E8C880','#FFD070','#B89040','#D4AA60'],
+  palestine: ['#8A9870','#A8B890','#C8D8B0','#607850','#B0C090'],
+  saudi:     ['#304828','#3A5830','#5A7848','#203818','#486040'],
+  malaysia:  ['#C0780A','#E09020','#F0B040','#905C08','#D08018'],
+  turkey:    ['#C87840','#E09060','#F0A878','#A05A28','#D08050'],
+  indonesia: ['#1A5020','#2A7030','#3A9040','#104018','#248028'],
+  morocco:   ['#902010','#B83020','#D04030','#701808','#A02818'],
+  default:   ['#1A2438','#222E48','#2C3C5A','#12182C','#1E2A40']
+};
+
+function seedCityBuildings() {
+  const palette = THEME_PALETTE[settings.theme||'default'] || THEME_PALETTE.default;
+  cityBuildings = [];
+  for (let i = 0; i < CITY_SEGS * 2; i++) {
+    cityBuildings.push(makeCityBuilding(i / (CITY_SEGS * 2), palette, i));
+  }
+}
+
+function makeCityBuilding(zFrac, palette, idx) {
+  const side = idx % 2 === 0 ? 'left' : 'right';
+  const h = 0.15 + Math.random() * 0.45;          // height relative to screen H
+  const w = 0.06 + Math.random() * 0.10;           // width relative to screen W
+  const color = palette[Math.floor(Math.random() * palette.length)];
+  const winColor = '#' + ['FFD070','F0C060','E0D080','A0C0E0','80B0D0'][Math.floor(Math.random()*5)];
+  const hasFlag = Math.random() < 0.18;            // 18% chance of flag
+  const flagOffset = 0.3 + Math.random() * 0.4;   // where on building face
+  return { side, zFrac, h, w, color, winColor, hasFlag, flagOffset };
+}
+
+function drawCityCanvas() {
+  const canvas = document.getElementById('cityCanvas');
+  if (!canvas) return;
+  const W = canvas.width  = canvas.offsetWidth  || window.innerWidth;
+  const H = canvas.height = canvas.offsetHeight || window.innerHeight;
+  const ctx = canvas.getContext('2d');
+
+  // ── Sky ─────────────────────────────────────────────────────────────────
+  const theme = settings.theme || 'default';
+  const skies = {
+    egypt:     ['#E8A040','#C06020','#803010'],
+    palestine: ['#1A3A6A','#2A4A8A','#3A5A9A'],
+    saudi:     ['#040C08','#081408','#0C1C10'],
+    malaysia:  ['#0A1828','#182A48','#203058'],
+    turkey:    ['#1A1428','#2A1A3A','#3A2048'],
+    indonesia: ['#0A1808','#101E0A','#181E08'],
+    morocco:   ['#180808','#280C0C','#381010'],
+    default:   ['#050710','#0A0E1A','#0E1428']
+  };
+  const skyColors = skies[theme] || skies.default;
+  const skyGrad = ctx.createLinearGradient(0, 0, 0, H * 0.52);
+  skyGrad.addColorStop(0, skyColors[0]);
+  skyGrad.addColorStop(0.5, skyColors[1]);
+  skyGrad.addColorStop(1, skyColors[2]);
+  ctx.fillStyle = skyGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // ── Horizon glow ────────────────────────────────────────────────────────
+  const hY = H * 0.44;
+  const hGrad = ctx.createRadialGradient(W/2, hY, 0, W/2, hY, W * 0.55);
+  hGrad.addColorStop(0, 'rgba(212,168,67,0.28)');
+  hGrad.addColorStop(0.5, 'rgba(180,120,40,0.10)');
+  hGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = hGrad;
+  ctx.fillRect(0, hY - H * 0.15, W, H * 0.30);
+
+  // ── Ground / sidewalks ───────────────────────────────────────────────────
+  // Ground plane
+  const groundGrad = ctx.createLinearGradient(0, hY, 0, H);
+  groundGrad.addColorStop(0, '#181410');
+  groundGrad.addColorStop(1, '#0C0A08');
+  ctx.fillStyle = groundGrad;
+  ctx.fillRect(0, hY, W, H - hY);
+
+  // Road trapezoid — vanishing to VP
+  const roadNearHalf = W * 0.25;
+  const roadFarHalf  = W * 0.032;
+  ctx.beginPath();
+  ctx.moveTo(W/2 - roadNearHalf, H);
+  ctx.lineTo(W/2 + roadNearHalf, H);
+  ctx.lineTo(W/2 + roadFarHalf, hY);
+  ctx.lineTo(W/2 - roadFarHalf, hY);
+  ctx.closePath();
+  const roadGrad = ctx.createLinearGradient(0, hY, 0, H);
+  roadGrad.addColorStop(0, '#2A2820');
+  roadGrad.addColorStop(1, '#1A1610');
+  ctx.fillStyle = roadGrad;
+  ctx.fill();
+
+  // Road edge lines
+  ctx.strokeStyle = 'rgba(212,168,67,0.5)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(W/2 - roadNearHalf, H); ctx.lineTo(W/2 - roadFarHalf, hY);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(W/2 + roadNearHalf, H); ctx.lineTo(W/2 + roadFarHalf, hY);
+  ctx.stroke();
+
+  // Dashed centre line
+  ctx.strokeStyle = 'rgba(212,168,67,0.35)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([12, 14]);
+  ctx.lineDashOffset = -(cityOffset * 500 % 26);
+  ctx.beginPath();
+  ctx.moveTo(W/2, H); ctx.lineTo(W/2, hY + 4);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Sidewalks
+  const swW = W * 0.08;
+  ctx.fillStyle = '#1E1C18';
+  // left sidewalk
+  ctx.beginPath();
+  ctx.moveTo(W/2 - roadNearHalf - swW * 2, H);
+  ctx.lineTo(W/2 - roadNearHalf, H);
+  ctx.lineTo(W/2 - roadFarHalf, hY);
+  ctx.lineTo(W/2 - roadFarHalf - swW * 0.15, hY);
+  ctx.closePath(); ctx.fill();
+  // right sidewalk
+  ctx.beginPath();
+  ctx.moveTo(W/2 + roadNearHalf + swW * 2, H);
+  ctx.lineTo(W/2 + roadNearHalf, H);
+  ctx.lineTo(W/2 + roadFarHalf, hY);
+  ctx.lineTo(W/2 + roadFarHalf + swW * 0.15, hY);
+  ctx.closePath(); ctx.fill();
+
+  // ── Buildings (perspective projected) ───────────────────────────────────
+  // Sort back-to-front
+  const sorted = [...cityBuildings].sort((a, b) => a.zFrac - b.zFrac);
+
+  for (const bld of sorted) {
+    // zFrac: 0 = at horizon, 1 = near (just passed)
+    // Apply scroll offset with wrap-around
+    let z = ((bld.zFrac + cityOffset) % 1.0);
+    if (z < 0.01) z = 0.01;
+
+    // Perspective scale: objects grow as z→1
+    const persp = 0.015 + z * z * 0.97;   // non-linear growth for natural perspective
+    const vpX = W / 2;
+    const vpY = hY;
+
+    // Road edge x at this z
+    const roadEdgeX = roadFarHalf + (roadNearHalf - roadFarHalf) * z;
+    const sidewalkW  = swW * 0.15 + swW * z * 1.9;
+
+    // Building dimensions in screen space
+    const bldH = bld.h * H * persp * 2.2;
+    const bldW = bld.w * W * persp * 2.5;
+
+    // Base position (bottom of building) on the ground plane
+    const baseY = vpY + (H - vpY) * z;
+    const offsetX = roadEdgeX + sidewalkW + bldW * 0.3;
+
+    const bx = bld.side === 'left' ? vpX - offsetX - bldW : vpX + offsetX;
+    const by = baseY - bldH;
+
+    if (by > H || bx + bldW < 0 || bx > W) continue; // off-screen
+
+    // ── Building body (main face)
+    ctx.fillStyle = bld.color;
+    ctx.fillRect(bx, by, bldW, bldH);
+
+    // ── Side face (darker, gives 3D depth)
+    const sideW = bldW * 0.25;
+    ctx.fillStyle = shadeColor(bld.color, -35);
+    if (bld.side === 'left') {
+      ctx.fillRect(bx + bldW, by + bldH * 0.04, sideW, bldH * 0.96);
+    } else {
+      ctx.fillRect(bx - sideW, by + bldH * 0.04, sideW, bldH * 0.96);
+    }
+
+    // ── Roof
+    ctx.fillStyle = shadeColor(bld.color, 20);
+    ctx.fillRect(bx, by, bldW, bldH * 0.04);
+
+    // ── Windows (grid)
+    const wCols = Math.max(2, Math.floor(bldW / 12));
+    const wRows = Math.max(2, Math.floor(bldH / 16));
+    const wW = Math.max(2, bldW / wCols * 0.45);
+    const wH = Math.max(2, bldH / wRows * 0.40);
+    const litChance = 0.55;
+    for (let r = 0; r < wRows; r++) {
+      for (let c = 0; c < wCols; c++) {
+        const wx = bx + (c + 0.5) / wCols * bldW - wW / 2;
+        const wy = by + bldH * 0.1 + (r + 0.3) / wRows * bldH * 0.8;
+        ctx.fillStyle = Math.random() < litChance ? bld.winColor : 'rgba(0,0,0,0.5)';
+        ctx.fillRect(wx, wy, wW, wH);
+      }
+    }
+
+    // ── Flag on building (occasional)
+    if (bld.hasFlag && bldH > 30) {
+      const fx = bx + bldW * bld.flagOffset;
+      const fy = by + bldH * 0.08;
+      const fw = Math.max(12, bldW * 0.35);
+      const fh = fw * 0.6;
+      drawFlagPixel(ctx, theme, fx, fy, fw, fh);
+      // Flagpole
+      ctx.strokeStyle = '#C8A840';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(fx, fy - fh * 0.3);
+      ctx.lineTo(fx, fy + fh * 1.3);
+      ctx.stroke();
+    }
+  }
+
+  // ── Landmark at horizon (center) ─────────────────────────────────────────
+  const lm = document.getElementById('immLandmark');
+  if (lm && settings.theme && settings.theme !== 'default') {
+    lm.style.display = 'block';
+  }
+}
+
+// Helper: shade a hex color by amt (-255 to +255)
+function shadeColor(hex, amt) {
+  try {
+    let r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    r = Math.min(255, Math.max(0, r + amt));
+    g = Math.min(255, Math.max(0, g + amt));
+    b = Math.min(255, Math.max(0, b + amt));
+    return `rgb(${r},${g},${b})`;
+  } catch { return hex; }
+}
+
+// Draw a tiny country flag at (fx, fy) with size (fw × fh)
+function drawFlagPixel(ctx, theme, fx, fy, fw, fh) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(fx, fy, fw, fh);
+  ctx.clip();
+  const h3 = fh / 3;
+  switch(theme) {
+    case 'egypt':
+      ctx.fillStyle='#CE1126'; ctx.fillRect(fx,fy,fw,h3);
+      ctx.fillStyle='#FFFFFF'; ctx.fillRect(fx,fy+h3,fw,h3);
+      ctx.fillStyle='#000000'; ctx.fillRect(fx,fy+h3*2,fw,h3);
+      ctx.fillStyle='#C09A00'; ctx.fillRect(fx+fw*0.4,fy+h3*0.8,fw*0.2,h3*1.4);
+      break;
+    case 'palestine':
+      ctx.fillStyle='#000000'; ctx.fillRect(fx,fy,fw,h3);
+      ctx.fillStyle='#FFFFFF'; ctx.fillRect(fx,fy+h3,fw,h3);
+      ctx.fillStyle='#009000'; ctx.fillRect(fx,fy+h3*2,fw,h3);
+      ctx.fillStyle='#CE1126';
+      ctx.beginPath(); ctx.moveTo(fx,fy); ctx.lineTo(fx+fw*0.38,fy+fh/2); ctx.lineTo(fx,fy+fh); ctx.closePath(); ctx.fill();
+      break;
+    case 'saudi':
+      ctx.fillStyle='#006C35'; ctx.fillRect(fx,fy,fw,fh);
+      ctx.fillStyle='#FFFFFF'; ctx.fillRect(fx+fw*0.12,fy+fh*0.28,fw*0.76,fh*0.12); // sword
+      ctx.fillRect(fx+fw*0.38,fy+fh*0.1,fw*0.06,fh*0.4);
+      break;
+    case 'malaysia':
+      for(let i=0;i<5;i++){ctx.fillStyle=i%2?'#FFFFFF':'#CC0001';ctx.fillRect(fx,fy+i*fh/5,fw,fh/5);}
+      ctx.fillStyle='#003580'; ctx.fillRect(fx,fy,fw*0.5,fh*0.6);
+      ctx.fillStyle='#FFCC00'; ctx.beginPath();ctx.arc(fx+fw*0.18,fy+fh*0.3,fh*0.22,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#003580'; ctx.beginPath();ctx.arc(fx+fw*0.22,fy+fh*0.28,fh*0.18,0,Math.PI*2);ctx.fill();
+      break;
+    case 'turkey':
+      ctx.fillStyle='#E30A17'; ctx.fillRect(fx,fy,fw,fh);
+      ctx.fillStyle='#FFFFFF'; ctx.beginPath();ctx.arc(fx+fw*0.35,fy+fh*0.5,fh*0.28,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#E30A17'; ctx.beginPath();ctx.arc(fx+fw*0.42,fy+fh*0.5,fh*0.22,0,Math.PI*2);ctx.fill();
+      break;
+    case 'indonesia':
+      ctx.fillStyle='#CE1126'; ctx.fillRect(fx,fy,fw,fh/2);
+      ctx.fillStyle='#FFFFFF'; ctx.fillRect(fx,fy+fh/2,fw,fh/2);
+      break;
+    case 'morocco':
+      ctx.fillStyle='#C1272D'; ctx.fillRect(fx,fy,fw,fh);
+      ctx.fillStyle='#006233';
+      ctx.beginPath(); ctx.moveTo(fx+fw/2,fy+fh*0.15);
+      for(let i=0;i<5;i++){const a=i*Math.PI*2/5-Math.PI/2;ctx.lineTo(fx+fw/2+Math.cos(a)*fh*0.3,fy+fh/2+Math.sin(a)*fh*0.3);}
+      ctx.closePath(); ctx.stroke();
+      break;
+    default:
+      ctx.fillStyle='#1A2438'; ctx.fillRect(fx,fy,fw,fh);
+      ctx.fillStyle='#D4A843'; ctx.fillRect(fx,fy,fw,fh*0.15);
+      break;
+  }
+  ctx.restore();
+}
+
+// ── City animation loop ──────────────────────────────────────────────────────
+function startCityAnimation() {
+  stopCityAnimation();
+  seedCityBuildings();
+  let last = null;
+
+  function loop(ts) {
+    if (!inImm) { stopCityAnimation(); return; }
+    const dt = last ? Math.min((ts - last) / 1000, 0.05) : 0.016;
+    last = ts;
+    cityOffset = (cityOffset + citySpeed * 60 * dt) % 1.0;
+    // Slowly reseed buildings that have passed by
+    const palette = THEME_PALETTE[settings.theme||'default'] || THEME_PALETTE.default;
+    cityBuildings = cityBuildings.map((b, i) => {
+      const z = (b.zFrac + cityOffset) % 1.0;
+      if (z < 0.015) {
+        // This building just "passed" — regenerate it at the back
+        return makeCityBuilding(0.98 + Math.random() * 0.02, palette, i);
+      }
+      return b;
+    });
+    drawCityCanvas();
+    cityAnimId = requestAnimationFrame(loop);
+  }
+  cityAnimId = requestAnimationFrame(loop);
+}
+
+function stopCityAnimation() {
+  if (cityAnimId) { cancelAnimationFrame(cityAnimId); cityAnimId = null; }
+}
+
+function enterImmersive() {
+  if (!routeSteps.length) { toast('Start navigation first'); return; }
+  inImm = true;
+  const env = document.getElementById('immEnv');
+  env.classList.add('visible');
+
+  // Set landmark SVG for current theme
+  const lm = document.getElementById('immLandmark');
+  if (lm) {
+    const th = settings.theme || 'default';
+    if (th !== 'default') {
+      // Generate a tall standalone landmark SVG (no mirroring)
+      lm.innerHTML = getLandmarkSVG(th);
+      lm.style.display = 'block';
+    } else {
+      lm.style.display = 'none';
+    }
+  }
+
+  // Start perspective city canvas
+  citySpeed = 0.004;
+  startCityAnimation();
+
+  syncImmHUD();
+  drawMinimap();
+}
+
+function exitImmersive() {
+  inImm = false;
+  stopCityAnimation();
+  document.getElementById('immEnv').classList.remove('visible');
+}
+
+// Landmark SVG per theme (taller, standalone, no flag strip — just the building)
+function getLandmarkSVG(theme) {
+  const P = (x,y,w,h,c) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/>`;
+  let d = '';
+  const W = 120, H = 200;
+  try { switch(theme) {
+    case 'egypt':
+      // Pyramid
+      for(let r=0;r<40;r++){const w=2+r*3,x=(W-w)/2;d+=P(x,20+r,w,1,r%5===4?'#A08040':r%2?'#D4B870':'#C8A860');}
+      d+=P(W/2-1,18,2,2,'#F0D080'); // tip
+      break;
+    case 'palestine':
+      // Dome of the Rock
+      d+=P(20,130,80,70,'#C8B890');d+=P(25,110,70,20,'#C8A840');
+      for(let r=0;r<25;r++){const w=70-r*1.2,x=(W-w)/2;d+=P(x,85+r,w,1,r<12?'#F0C840':'#D4A820');}
+      d+=P(W/2-1,60,2,25,'#E8C050'); // finial
+      break;
+    case 'saudi':
+      // Clock tower
+      d+=P(W/2-12,20,24,170,'#2A3528');d+=P(W/2-10,20,20,2,'#3A4538');
+      d+=P(W/2-10,50,20,20,'#F8F8F8');d+=P(W/2-1,52,2,8,'#101010');d+=P(W/2,56,4,2,'#101010');
+      d+=P(W/2-8,10,16,10,'#1A2518');d+=P(W/2-4,4,8,6,'#243020');
+      d+=P(W/2-2,0,4,4,'#D4A020');
+      break;
+    case 'malaysia':
+      // Single Petronas spire
+      d+=P(W/2-14,50,28,150,'#5888B0');d+=P(W/2-12,40,24,10,'#70A0C8');
+      d+=P(W/2-10,32,20,8,'#70A0C8');d+=P(W/2-8,26,16,6,'#80B0D8');
+      d+=P(W/2-4,16,8,10,'#90C0E0');d+=P(W/2-2,6,4,10,'#B0D0F0');d+=P(W/2-1,0,2,6,'#D0E8FF');
+      for(let r=0;r<6;r++) for(let c=0;c<4;c++) d+=P(W/2-12+c*6,55+r*18,4,10,'#FFD040');
+      break;
+    case 'turkey':
+      // Hagia Sophia dome
+      d+=P(15,130,90,70,'#D4C8A8');
+      for(let r=0;r<30;r++){const w=90-r*1.8,x=(W-w)/2;d+=P(x,100+r,w,1,r<15?'#E0D0B8':'#C8B898');}
+      d+=P(5,80,14,80,'#D0C0A0');d+=P(W-19,80,14,80,'#D0C0A0'); // minarets
+      d+=P(10,75,4,5,'#D4A020');d+=P(W-14,75,4,5,'#D4A020');
+      break;
+    case 'indonesia':
+      // Borobudur steps
+      for(let s=0;s<5;s++){const sw=110-s*18,sx=(W-sw)/2,sy=60+s*22;d+=P(sx,sy,sw,22,'#9A8868');}
+      for(let r=0;r<15;r++){const w=30-r*1.5,x=(W-w)/2;d+=P(x,5+r*5,w,5,'#B0A080');}
+      d+=P(W/2-2,0,4,5,'#C8B898');
+      break;
+    case 'morocco':
+      // Hassan II minaret
+      d+=P(W/2-14,15,28,175,'#E8C890');
+      for(let l=0;l<4;l++){d+=P(W/2-14,20+l*42,28,5,'#1A7A40');d+=P(W/2-14,25+l*42,28,3,'#1040A0');}
+      for(let l=0;l<3;l++){d+=P(W/2-8,32+l*42,16,16,'#0A3060');}
+      d+=P(W/2-16,10,32,7,'#D4A840');d+=P(W/2-4,2,8,8,'#D4A020');
+      break;
+    default:
+      d+=P(W/2-10,40,20,160,'#1A2438');
+      for(let r=0;r<8;r++) d+=P(W/2-8,50+r*20,16,10,'#D4A843');
+      break;
+  }} catch(e) {}
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" width="${W}" height="${H}">${d}</svg>`;
+}
+
+function immNavStep(dir) {
+  const next = currentStep + dir;
+  if (next < 0 || next >= routeSteps.length) return;
+  // Flash transition
+  const flash = document.getElementById('immFlash');
+  flash.classList.add('on');
+  setTimeout(() => flash.classList.remove('on'), 200);
+  currentStep = next;
+  // Briefly speed up the city scroll to feel like advancing a step
+  citySpeed = 0.018;
+  setTimeout(() => { citySpeed = 0.004; }, 600);
+  syncImmHUD();
+  syncNavHUD();
+  renderNavSteps();
+  drawRoute(routeGeom, currentStep);
+  drawMinimap();
+}
+
+function syncImmHUD() {
+  const step = routeSteps[currentStep];
+  if (!step) return;
+  document.getElementById('immSN').textContent = currentStep+1;
+  document.getElementById('immST').textContent = routeSteps.length;
+  document.getElementById('immSD').textContent = fmtD(step.dist||0);
+  document.getElementById('immInst').textContent = step.instr;
+  document.getElementById('immDL').textContent = step.dist ? `in ${fmtD(step.dist)}` : '';
+  const pct = routeSteps.length>1 ? (currentStep/(routeSteps.length-1))*100 : 100;
+  document.getElementById('immPF').style.width = pct + '%';
+  document.getElementById('immPrev').disabled = currentStep===0;
+  document.getElementById('immNext').disabled = currentStep>=routeSteps.length-1;
+  document.getElementById('immDestN').textContent = selectedMosque.name;
+  document.getElementById('immDestM').textContent = `${fmtD(routeTotalDist)} · ${fmtT(routeTotalDur)}`;
+  // Next preview
+  const nxt = routeSteps[currentStep+1];
+  document.getElementById('immNextPrev').innerHTML = nxt
+    ? `<span class="imm-next-icon">${getIcon(nxt)}</span><div class="imm-next-text"><strong>${nxt.instr.slice(0,40)}</strong>${fmtD(nxt.dist||0)}</div>`
+    : `<span class="imm-next-icon">🕌</span><div class="imm-next-text"><strong>You have arrived</strong>${selectedMosque?.name||''}</div>`;
+  // Arrow / arrive
+  const isArrive = step.type==='arrive';
+  const arrive = document.getElementById('immArrive');
+  const raceStage = document.getElementById('raceArrowStage');
+  if (isArrive) {
+    if (raceStage) raceStage.style.opacity = '0';
+    if (arrive) arrive.style.display='flex';
+  } else {
+    if (raceStage) raceStage.style.opacity = '1';
+    if (arrive) arrive.style.display='none';
+    updateImmArrow();
+  }
+  // Complete btn
+  const isDone = isCompleted(selectedMosque?.name||'');
+  const todayDone = isRamadanComplete();
+  document.getElementById('immComplete').disabled = isDone || todayDone;
+  document.getElementById('immComplete').textContent = isDone ? '✓ Visited' : '✓ Night';
+}
+
+function updateImmArrow() {
+  const step = routeSteps[currentStep]; if (!step) return;
+  let deg = getDeg(step);
+  if (compassHeading != null && userLat != null) {
+    const bearing = getBearingToNextPoint();
+    if (bearing != null) deg = (bearing - compassHeading + 360) % 360;
+  }
+  // Rotate only the SVG graphic — the plate keeps its CSS 3D rotateX tilt
+  const svg = document.getElementById('raceArrowSvg');
+  if (svg) svg.style.transform = `rotate(${deg}deg)`;
+
+  // Update direction text label
+  const labels = {
+    0:'STRAIGHT', 30:'BEAR RIGHT', 90:'TURN RIGHT', 135:'SHARP RIGHT',
+    180:'U-TURN', '-135':'SHARP LEFT', '-90':'TURN LEFT', '-30':'BEAR LEFT'
+  };
+  const label = document.getElementById('raceDirLabel');
+  if (label) {
+    const step2 = routeSteps[currentStep];
+    const m = step2?.maneuver || 'straight';
+    const lmap = {straight:'STRAIGHT','slight right':'BEAR RIGHT',right:'TURN RIGHT','sharp right':'SHARP RIGHT',
+      uturn:'U-TURN','sharp left':'SHARP LEFT',left:'TURN LEFT','slight left':'BEAR LEFT',
+      depart:'START',arrive:'ARRIVED',roundabout:'ROUNDABOUT'};
+    label.textContent = lmap[m] || 'CONTINUE';
+  }
+  // Update distance label
+  const distLbl = document.getElementById('raceDist');
+  if (distLbl && step) distLbl.textContent = step.dist ? fmtD(step.dist) : '';
+}
+
+// Mini-map canvas
+function drawMinimap() {
+  const canvas = document.getElementById('minimapCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = 120, H = 120;
+  ctx.clearRect(0,0,W,H);
+  if (!routeGeom.length) return;
+  // Find bounds
+  const lats = routeGeom.map(c=>c[0]), lngs = routeGeom.map(c=>c[1]);
+  const minLat=Math.min(...lats), maxLat=Math.max(...lats);
+  const minLng=Math.min(...lngs), maxLng=Math.max(...lngs);
+  const pad = 8;
+  function toXY(lat,lng) {
+    const x = pad + (lng-minLng)/(maxLng-minLng+0.00001)*(W-2*pad);
+    const y = H-pad - (lat-minLat)/(maxLat-minLat+0.00001)*(H-2*pad);
+    return [x,y];
+  }
+  const n = routeGeom.length;
+  const splitAt = Math.min(Math.floor((currentStep+1)/routeSteps.length*n), n);
+  // Future path
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(80,80,100,0.7)';
+  ctx.lineWidth = 2;
+  for (let i=splitAt; i<n; i++) {
+    const [x,y] = toXY(routeGeom[i][0],routeGeom[i][1]);
+    i===splitAt ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  // Completed path
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(212,168,67,0.7)';
+  ctx.lineWidth = 2.5;
+  for (let i=0; i<=splitAt && i<n; i++) {
+    const [x,y] = toXY(routeGeom[i][0],routeGeom[i][1]);
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  // Start dot (metro)
+  const [sx,sy] = toXY(routeGeom[0][0],routeGeom[0][1]);
+  ctx.beginPath(); ctx.arc(sx,sy,4,0,Math.PI*2);
+  ctx.fillStyle='#3A9BCC'; ctx.fill();
+  // End dot (mosque)
+  const [ex,ey] = toXY(routeGeom[n-1][0],routeGeom[n-1][1]);
+  ctx.beginPath(); ctx.arc(ex,ey,4,0,Math.PI*2);
+  ctx.fillStyle='#D4A843'; ctx.fill();
+  // Current position marker
+  if (splitAt > 0 && splitAt < n) {
+    const [cx,cy] = toXY(routeGeom[Math.min(splitAt,n-1)][0],routeGeom[Math.min(splitAt,n-1)][1]);
+    ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2);
+    ctx.fillStyle='rgba(240,201,106,0.9)'; ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=1.5; ctx.stroke();
+  }
+}
+
+// =============================================
+// COMPLETE NIGHT
+// =============================================
+function completeNight() {
+  if (!selectedMosque) { toast('Select a mosque first'); return; }
+  if (isCompleted(selectedMosque.name)) { toast('Already visited this mosque'); return; }
+  if (isRamadanComplete()) { toast('All 30 nights complete! Ramadan Mubarak 🌙'); return; }
+  const day = getCurrentDay();
+  const date = getToday();
+  visits.push({day, mosqueName: selectedMosque.name, date});
+  localStorage.setItem('rmVisits', JSON.stringify(visits));
+  // Update marker
+  if (mosqueMarkers[selectedMosque.name]) mosqueMarkers[selectedMosque.name].setIcon(mkMosqueIcon(true, true));
+  // Show flash
+  showCompleteFlash(day, selectedMosque.name);
+  // Close navigation
+  if (inImm) exitImmersive();
+  if (inNav) closeNavigation();
+  closePanel();
+  renderList(); updateStats();
+  // Deselect and refresh markers after flash
+  setTimeout(() => {
+    Object.entries(mosqueMarkers).forEach(([n,mk]) => mk.setIcon(mkMosqueIcon(false, isCompleted(n))));
+    selectedMosque = null;
+    clearRoute();
+    renderList();
+  }, 1800);
+}
+
+function showCompleteFlash(day, mosqueName) {
+  const flash = document.getElementById('completeFlash');
+  document.getElementById('cfText').textContent = `Night ${day} Complete!`;
+  document.getElementById('cfSub').textContent = mosqueName;
+  flash.classList.add('show');
+  setTimeout(() => flash.classList.remove('show'), 1800);
+}
+
+// =============================================
+// GPS & SENSORS — fully functional
+// =============================================
+function toggleGPS() {
+  if (gpsEnabled) disableGPS();
+  else enableGPS();
+}
+
+function enableGPS() {
+  if (!navigator.geolocation) { toast('GPS not supported on this device'); return; }
+  gpsEnabled = true;
+  gpsFirstFix = true;
+  setGPSUI('acquiring');
+  gpsWatchId = navigator.geolocation.watchPosition(onGPS, onGPSErr, {
+    enableHighAccuracy: true,
+    maximumAge: 1500,
+    timeout: 15000
+  });
+  startCompass();
+  toast('🛰 GPS enabled — acquiring…');
+}
+
+function disableGPS() {
+  gpsEnabled = false;
+  if (gpsWatchId != null) { navigator.geolocation.clearWatch(gpsWatchId); gpsWatchId = null; }
+  stopCompass();
+  if (userMarker) { map.removeLayer(userMarker); userMarker = null; }
+  if (accuracyCircle) { map.removeLayer(accuracyCircle); accuracyCircle = null; }
+  userLat = null; userLng = null;
+  setGPSUI('off');
+  toast('GPS disabled');
+}
+
+function setGPSUI(state) {
+  // state: 'off' | 'acquiring' | 'fix'
+  const isOn = state !== 'off';
+  const dot1 = document.getElementById('immGpsDot');
+  const lbl1 = document.getElementById('immGpsLbl');
+  const dot2 = document.getElementById('navGpsDot');
+  const lbl2 = document.getElementById('navGpsLbl');
+  const pill  = document.getElementById('navGpsPill');
+  const btn   = document.getElementById('gpsBtn');
+  const tog   = document.getElementById('gpsTog');
+
+  if (dot1) dot1.classList.toggle('on', state === 'fix');
+  if (dot2) dot2.classList.toggle('on', state === 'fix');
+  if (pill) pill.style.display = isOn ? 'flex' : 'none';
+  if (btn)  btn.classList.toggle('green-active', isOn);
+  if (tog)  tog.classList.toggle('on', isOn);
+
+  const txt = state === 'off' ? 'GPS off'
+            : state === 'acquiring' ? 'Acquiring…'
+            : `±${Math.round(window._gpsAcc||0)}m`;
+  if (lbl1) lbl1.textContent = txt;
+  if (lbl2) lbl2.textContent = txt;
+}
+
+function onGPS(pos) {
+  const lat = pos.coords.latitude;
+  const lng = pos.coords.longitude;
+  const acc = pos.coords.accuracy;
+  window._gpsAcc = acc;
+
+  userLat = lat;
+  userLng = lng;
+
+  // Update or create user marker (blue pulsing dot)
+  if (!userMarker) {
+    userMarker = L.marker([lat, lng], {
+      icon: L.divIcon({
+        html: `<div style="
+          width:14px;height:14px;border-radius:50%;
+          background:#4A9EFF;border:2.5px solid #fff;
+          box-shadow:0 0 0 4px rgba(74,158,255,0.25);
+        "></div>`,
+        className:'', iconSize:[14,14], iconAnchor:[7,7]
+      }),
+      zIndexOffset:1000, interactive:false
+    }).addTo(map);
+  } else {
+    userMarker.setLatLng([lat, lng]);
+  }
+
+  // Accuracy circle
+  if (!accuracyCircle) {
+    accuracyCircle = L.circle([lat, lng], {
+      radius: acc, color:'#4A9EFF', fillColor:'#4A9EFF',
+      fillOpacity:0.08, weight:1, opacity:0.4, interactive:false
+    }).addTo(map);
+  } else {
+    accuracyCircle.setLatLng([lat, lng]);
+    accuracyCircle.setRadius(acc);
+  }
+
+  setGPSUI('fix');
+
+  // First fix: fly to user location (only if not mid-nav)
+  if (gpsFirstFix) {
+    gpsFirstFix = false;
+    if (!inNav && !inImm) {
+      map.flyTo([lat, lng], 16, {duration: 1.5});
+    }
+  }
+
+  // During navigation: keep map centered on user
+  if ((inNav || inImm) && map) {
+    map.panTo([lat, lng], {animate: true, duration: 0.5});
+  }
+
+  // Update both nav arrows with real bearing
+  updateNavArrow();
+  updateImmArrow();
+
+  // Auto-advance step if close enough to next waypoint
+  autoAdvance();
+}
+
+function onGPSErr(err) {
+  const msgs = {
+    1: 'GPS permission denied — please allow location access',
+    2: 'GPS signal unavailable',
+    3: 'GPS timed out — retrying…'
+  };
+  const msg = msgs[err.code] || 'GPS error';
+  const dot1 = document.getElementById('immGpsDot');
+  const lbl1 = document.getElementById('immGpsLbl');
+  const lbl2 = document.getElementById('navGpsLbl');
+  if (dot1) dot1.classList.remove('on');
+  if (lbl1) lbl1.textContent = msg;
+  if (lbl2) lbl2.textContent = msg;
+  if (err.code === 1) disableGPS(); // permission denied — stop trying
+}
+
+// ─── Compass ────────────────────────────────
+let _compassListening = false;
+async function startCompass() {
+  if (_compassListening) return;
+  if (typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof DeviceOrientationEvent.requestPermission === 'function') {
+    try {
+      const p = await DeviceOrientationEvent.requestPermission();
+      if (p !== 'granted') { toast('Compass permission denied'); return; }
+    } catch(e) { return; }
+  }
+  window.addEventListener('deviceorientationabsolute', onOrientation, {passive:true});
+  window.addEventListener('deviceorientation', onOrientation, {passive:true});
+  _compassListening = true;
+}
+function stopCompass() {
+  window.removeEventListener('deviceorientationabsolute', onOrientation);
+  window.removeEventListener('deviceorientation', onOrientation);
+  _compassListening = false;
+  compassHeading = null;
+}
+
+function onOrientation(e) {
+  // Prefer absolute heading; fall back to relative alpha
+  let h = null;
+  if (e.absolute && e.alpha != null) h = (360 - e.alpha) % 360;
+  else if (e.webkitCompassHeading != null) h = e.webkitCompassHeading;
+  else if (e.alpha != null) h = (360 - e.alpha) % 360;
+  if (h == null) return;
+  compassHeading = h;
+
+  // Rotate compass needle
+  const needle = document.getElementById('immNeedle');
+  if (needle) needle.style.transform = `rotate(${-h}deg)`;
+
+  updateNavArrow();
+  updateImmArrow();
+}
+
+// ─── Arrow updates ───────────────────────────
+function getBearingToNextPoint() {
+  // Use user GPS position → next geometry waypoint for accurate bearing
+  if (userLat == null || !routeGeom.length) return null;
+  const n = routeGeom.length;
+  const stepFrac = routeSteps.length > 1 ? (currentStep / (routeSteps.length - 1)) : 1;
+  const geomIdx = Math.min(Math.floor(stepFrac * n) + 1, n - 1);
+  const target = routeGeom[geomIdx];
+  if (!target) return null;
+  return getBearing(userLat, userLng, target[0], target[1]);
+}
+
+function updateNavArrow() {
+  // Standard nav arrow — update with real compass bearing when GPS+compass available
+  const arrow = document.getElementById('navArrow');
+  if (!arrow || !inNav) return;
+  const step = routeSteps[currentStep];
+  if (!step) return;
+  let deg = getDeg(step);
+  if (compassHeading != null && userLat != null) {
+    const bearing = getBearingToNextPoint();
+    if (bearing != null) deg = (bearing - compassHeading + 360) % 360;
+  }
+  arrow.style.transform = `rotate(${deg}deg)`;
+}
+
+// ─── Auto-advance ────────────────────────────
+function autoAdvance() {
+  if (!inNav && !inImm) return;
+  if (!routeSteps.length || currentStep >= routeSteps.length - 1) return;
+  if (userLat == null) return;
+
+  // Find the geometry point corresponding to the NEXT step
+  const n = routeGeom.length;
+  const nextStepFrac = (currentStep + 1) / Math.max(routeSteps.length - 1, 1);
+  const geomIdx = Math.min(Math.round(nextStepFrac * (n - 1)), n - 1);
+  const wp = routeGeom[geomIdx];
+  if (!wp) return;
+
+  const dist = haversine(userLat, userLng, wp[0], wp[1]);
+  if (dist < 25) {
+    if (inImm) immNavStep(1);
+    else navStep(1);
+    toast('📍 Next step');
+  }
+}
+
+// =============================================
+// PROGRESS SCREEN
+// =============================================
+function openProgress() {
+  renderProgress();
+  document.getElementById('progModal').classList.add('open');
+}
+function closeProgress() { document.getElementById('progModal').classList.remove('open'); }
+
+function renderProgress() {
+  const done = visits.length;
+  const today = getCurrentDay();
+  document.getElementById('pgDone').textContent = done;
+  document.getElementById('pgRemain').textContent = Math.max(0, 30-done);
+  document.getElementById('pgDay').textContent = `Day ${today}`;
+  const grid = document.getElementById('progGrid');
+  grid.innerHTML = Array.from({length:30}, (_,i) => {
+    const dayN = i+1;
+    const visit = visits.find(v=>v.day===dayN);
+    const isDone = !!visit;
+    const isToday = dayN === today && !isDone;
+    return `<div class="day-card ${isDone?'dc-done':''} ${isToday?'dc-today':''}">
+      <div class="day-star-ico">★</div>
+      <div class="day-num-lbl">Night ${dayN}</div>
+      ${isDone
+        ? `<div class="day-emoji">🕌</div><div class="day-mosque-nm">${visit.mosqueName}</div><div class="day-date-lbl">${fmtDate(visit.date)}</div>`
+        : `<div class="day-emoji">🕌</div><div class="day-q">?</div>`}
+    </div>`;
+  }).join('');
+}
+
+function fmtDate(dateStr) {
+  try { const d=new Date(dateStr); return d.toLocaleDateString('en',{month:'short',day:'numeric'}); }
+  catch(e) { return dateStr; }
+}
+
+// =============================================
+// SETTINGS
+// =============================================
+function openSettings() {
+  buildThemeGrid();
+  document.getElementById('gpsTog').classList.toggle('on', gpsEnabled);
+  document.getElementById('setModal').classList.add('open');
+}
+function closeSettings() { document.getElementById('setModal').classList.remove('open'); }
+function confirmReset() {
+  if (confirm('Reset all progress? This cannot be undone.')) {
+    visits = [];
+    localStorage.removeItem('rmVisits');
+    renderList(); updateStats();
+    closeSettings();
+    toast('Progress reset');
+  }
+}
+
+// =============================================
+// ADD / DELETE
+// =============================================
+function toggleAddMode() {
+  addMode = !addMode;
+  document.getElementById('addBtn').classList.toggle('active', addMode);
+  document.getElementById('addHint').classList.toggle('visible', addMode);
+  map.getContainer().style.cursor = addMode ? 'crosshair' : '';
+  if (!addMode) pendingCoords = null;
+}
+function closeAddModal() {
+  document.getElementById('addModal').classList.remove('open');
+  document.getElementById('addName').value = '';
+  document.getElementById('addCoords').value = '';
+  pendingCoords = null;
+  if (addMode) toggleAddMode();
+}
+function confirmAdd() {
+  const name = document.getElementById('addName').value.trim();
+  if (!name) { document.getElementById('addName').focus(); return; }
+  if (!pendingCoords) { toast('Tap the map first to place the mosque'); return; }
+  if (mosques.find(m=>m.name===name)) { toast('A mosque with this name already exists'); return; }
+  const mosque = {name, lat:pendingCoords.lat, lng:pendingCoords.lng};
+  mosques.push(mosque);
+  const mk = L.marker([mosque.lat,mosque.lng],{icon:mkMosqueIcon(false,false)}).addTo(map).bindTooltip(mosque.name,{direction:'top',offset:[0,-6]});
+  mk.on('click',()=>selectMosque(mosque)); mosqueMarkers[mosque.name]=mk;
+  updateStats(); renderList(); closeAddModal(); selectMosque(mosque);
+  toast(`Added "${name}"`);
+}
+
+window.promptDelete = function(name) {
+  pendingDeleteName = name;
+  document.getElementById('delName').textContent = `"${name}"`;
+  document.getElementById('delBar').classList.add('open');
+};
+function cancelDelete() { pendingDeleteName=null; document.getElementById('delBar').classList.remove('open'); }
+function confirmDelete() {
+  if (!pendingDeleteName) return;
+  const name = pendingDeleteName;
+  mosques = mosques.filter(m=>m.name!==name);
+  if (mosqueMarkers[name]) { map.removeLayer(mosqueMarkers[name]); delete mosqueMarkers[name]; }
+  if (selectedMosque?.name===name) { closePanel(); if(inNav)closeNavigation(); if(inImm)exitImmersive(); selectedMosque=null; }
+  updateStats(); renderList(); cancelDelete();
+  toast(`"${name}" removed`);
+}
+
+// =============================================
+// UTILS
+// =============================================
+function findNearest(mosque) {
+  if (!metros.length) return null;
+  let best=null, minD=Infinity;
+  metros.forEach(t => {
+    const d = haversine(mosque.lat,mosque.lng,t.lat,t.lng);
+    if (d<minD) { minD=d; best={...t,dist:d}; }
+  });
+  return best;
+}
+function haversine(a,b,c,d) {
+  const R=6371000, p1=a*Math.PI/180, p2=c*Math.PI/180, da=(c-a)*Math.PI/180, dl=(d-b)*Math.PI/180;
+  const x=Math.sin(da/2)**2+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+function getBearing(a,b,c,d) {
+  const p1=a*Math.PI/180, p2=c*Math.PI/180, dl=(d-b)*Math.PI/180;
+  const y=Math.sin(dl)*Math.cos(p2), x=Math.cos(p1)*Math.sin(p2)-Math.sin(p1)*Math.cos(p2)*Math.cos(dl);
+  return ((Math.atan2(y,x)*180/Math.PI)+360)%360;
+}
+function fmtD(m) { return m<1000 ? `${Math.round(m)} m` : `${(m/1000).toFixed(2)} km`; }
+function fmtT(s) { const m=Math.round(s/60); return m<60 ? `${m} min` : `${Math.floor(m/60)}h ${m%60}m`; }
+function esc(s) { return s.replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+function toast(msg) {
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// =============================================
+// MOBILE SIDEBAR
+// =============================================
+function toggleMobSidebar() {
+  document.getElementById('sidebar').classList.toggle('mob-open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+
+// =============================================
+// KEYBOARD
+// =============================================
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') {
+    if (inImm) exitImmersive();
+    else if (inNav) closeNavigation();
+    else closePanel();
+    return;
+  }
+  if (inImm) {
+    if (e.key==='ArrowRight'||e.key==='ArrowDown') immNavStep(1);
+    if (e.key==='ArrowLeft'||e.key==='ArrowUp') immNavStep(-1);
+    return;
+  }
+  if (inNav) {
+    if (e.key==='ArrowRight'||e.key==='ArrowDown') navStep(1);
+    if (e.key==='ArrowLeft'||e.key==='ArrowUp') navStep(-1);
+    if (e.key==='i'||e.key==='I') enterImmersive();
+  }
+});
+
+// =============================================
+// INIT
+// =============================================
+applyTheme(settings.theme || 'default');
+// Show current day in header
+(() => {
+  const day = getCurrentDay();
+  const todayDone = isRamadanComplete();
+  if (visits.length > 0 || day > 1) {
+    console.log(`Day ${day}/${30} | ${visits.length} mosques visited`);
+  }
+})();
+</script>
+</body>
+</html>
